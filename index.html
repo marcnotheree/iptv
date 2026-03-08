@@ -31,7 +31,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 340px minmax(0, 1fr);
       gap: 14px;
       padding: 14px;
       min-height: 100vh;
@@ -184,6 +184,14 @@
       overflow: hidden;
     }
 
+    .content-wrap {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      min-height: 100%;
+    }
+
     .notice {
       margin: 14px;
       padding: 12px;
@@ -213,13 +221,15 @@
       border: 1px solid var(--border);
       background: #07090f;
       position: relative;
-      min-height: 60vh;
+      aspect-ratio: 16 / 9;
+      min-height: 360px;
+      max-height: calc(100vh - 220px);
     }
 
     iframe {
       width: 100%;
       height: 100%;
-      min-height: 60vh;
+      min-height: 100%;
       border: 0;
       background: #07090f;
     }
@@ -233,8 +243,23 @@
 
     @media (max-width: 980px) {
       .app { grid-template-columns: 1fr; }
-      .sidebar { max-height: 48vh; }
-      .player-wrap, iframe { min-height: 48vh; }
+      .sidebar { max-height: 44vh; }
+      .content-wrap { width: 100%; }
+      .player-wrap {
+        min-height: 240px;
+        max-height: calc(100vh - 260px);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app { padding: 10px; gap: 10px; }
+      .player-head { margin: 0 10px 8px; }
+      .notice { margin: 10px; }
+      .player-wrap {
+        margin: 0 10px 10px;
+        min-height: 210px;
+        max-height: calc(100vh - 300px);
+      }
     }
   </style>
 </head>
@@ -261,23 +286,26 @@
     </aside>
 
     <main class="panel main">
-      <div class="notice">
-        <strong>Important Notice:</strong> All channels are offered for free and experimental testing new technologies without any warranty or obligation by the source provider. Use only embed links in iframe context. Do not use iframe sandbox attributes and do not open embed links directly in browser tabs.
-      </div>
-
-      <div class="player-head">
-        <div>
-          <h2 class="player-title" id="playerTitle">Choose a channel</h2>
-          <div class="meta" id="playerMeta">Select a channel from the left list to start streaming.</div>
+      <div class="content-wrap">
+        <div class="notice">
+          <strong>Important Notice:</strong> All channels are offered for free and experimental testing new technologies without any warranty or obligation by the source provider. Use only embed links in iframe context. Do not use iframe sandbox attributes and do not open embed links directly in browser tabs.
         </div>
-        <div class="actions">
-          <button id="pinCurrent" class="btn-icon pin" title="Pin channel">📌</button>
-          <button id="favoriteCurrent" class="btn-icon fav" title="Favorite channel">★</button>
-        </div>
-      </div>
 
-      <div class="player-wrap" id="playerWrap">
-        <div class="empty">Pick a channel to play its embedded stream.</div>
+        <div class="player-head">
+          <div>
+            <h2 class="player-title" id="playerTitle">Choose a channel</h2>
+            <div class="meta" id="playerMeta">Select a channel from the left list to start streaming.</div>
+          </div>
+          <div class="actions">
+            <button id="pinCurrent" class="btn-icon pin" title="Pin channel">📌</button>
+            <button id="favoriteCurrent" class="btn-icon fav" title="Favorite channel">★</button>
+            <button id="copyCurrentLink" class="btn-icon" title="Copy channel link">🔗</button>
+          </div>
+        </div>
+
+        <div class="player-wrap" id="playerWrap">
+          <div class="empty">Pick a channel to play its embedded stream.</div>
+        </div>
       </div>
     </main>
   </div>
@@ -411,8 +439,19 @@
       playerTitle: document.getElementById('playerTitle'),
       playerMeta: document.getElementById('playerMeta'),
       pinCurrent: document.getElementById('pinCurrent'),
-      favoriteCurrent: document.getElementById('favoriteCurrent')
+      favoriteCurrent: document.getElementById('favoriteCurrent'),
+      copyCurrentLink: document.getElementById('copyCurrentLink')
     };
+
+    // Best-effort anti-popup guard outside the cross-origin iframe.
+    // Provider requires no iframe sandbox, so full suppression inside embed is not technically enforceable.
+    window.open = () => null;
+    window.addEventListener('beforeunload', (event) => {
+      if (document.activeElement?.tagName === 'IFRAME') {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    });
 
     function saveState() {
       localStorage.setItem('iptv-favorites', JSON.stringify([...appState.favorites]));
@@ -421,6 +460,44 @@
 
     function isPinned(name) { return appState.pinned.has(name); }
     function isFavorite(name) { return appState.favorites.has(name); }
+
+    function channelSlug(name) {
+      return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    function buildChannelLink(name) {
+      const base = `${location.origin}${location.pathname}`;
+      return `${base}#channel=${encodeURIComponent(channelSlug(name))}`;
+    }
+
+    function getChannelBySlug(slug) {
+      if (!slug) return null;
+      const decoded = decodeURIComponent(slug).toLowerCase();
+      return channels.find((c) => channelSlug(c.name) === decoded) || null;
+    }
+
+    function copyText(value) {
+      if (!value) return;
+      const fallback = () => {
+        const area = document.createElement('textarea');
+        area.value = value;
+        document.body.append(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+      };
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(value).catch(fallback);
+      } else {
+        fallback();
+      }
+    }
+
+    function syncHash(name) {
+      if (!name) return;
+      const next = `#channel=${encodeURIComponent(channelSlug(name))}`;
+      if (location.hash !== next) history.replaceState(null, '', next);
+    }
 
     function togglePinned(name) {
       appState.pinned.has(name) ? appState.pinned.delete(name) : appState.pinned.add(name);
@@ -450,6 +527,13 @@
         });
     }
 
+    function embedWithAutoplay(url) {
+      const u = new URL(url);
+      u.searchParams.set('autoplay', '1');
+      u.searchParams.set('muted', '1');
+      return u.toString();
+    }
+
     function updatePlayer(channel) {
       if (!channel) {
         els.playerTitle.textContent = 'Choose a channel';
@@ -458,7 +542,9 @@
       } else {
         els.playerTitle.textContent = channel.name;
         els.playerMeta.textContent = `${channel.category} • ${channel.description}`;
-        els.playerWrap.innerHTML = `<iframe allow="autoplay; fullscreen" src="${channel.embed}" title="${channel.name}"></iframe>`;
+        const autoplaySrc = embedWithAutoplay(channel.embed);
+        els.playerWrap.innerHTML = `<iframe allow="autoplay; fullscreen" src="${autoplaySrc}" title="${channel.name}" loading="eager"></iframe>`;
+        syncHash(channel.name);
       }
 
       els.pinCurrent.classList.toggle('active', !!channel && isPinned(channel.name));
@@ -520,7 +606,16 @@
           favBtn.title = 'Favorite channel';
           favBtn.onclick = (e) => { e.stopPropagation(); toggleFavorite(c.name); };
 
-          actions.append(pinBtn, favBtn);
+          const shareBtn = document.createElement('button');
+          shareBtn.className = 'btn-icon';
+          shareBtn.textContent = '🔗';
+          shareBtn.title = 'Copy channel link';
+          shareBtn.onclick = (e) => {
+            e.stopPropagation();
+            copyText(buildChannelLink(c.name));
+          };
+
+          actions.append(pinBtn, favBtn, shareBtn);
           row2.append(actions);
 
           item.append(row1, row2);
@@ -579,7 +674,24 @@
       toggleFavorite(appState.selected);
     });
 
+    els.copyCurrentLink.addEventListener('click', () => {
+      if (!appState.selected) return;
+      copyText(buildChannelLink(appState.selected));
+    });
+
+    window.addEventListener('hashchange', () => {
+      const params = new URLSearchParams(location.hash.replace(/^#/, ''));
+      const fromHash = getChannelBySlug(params.get('channel'));
+      if (fromHash) {
+        appState.selected = fromHash.name;
+        render();
+      }
+    });
+
     initCategories();
+    const initialParams = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const initial = getChannelBySlug(initialParams.get('channel'));
+    if (initial) appState.selected = initial.name;
     render();
   </script>
 </body>
