@@ -241,42 +241,6 @@
       font-size: .9rem;
     }
 
-    .shield-controls {
-      margin: 0 14px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #0f1422;
-      padding: 8px 10px;
-      color: var(--muted);
-      font-size: .82rem;
-    }
-
-    .shield-controls .chip {
-      padding: 6px 10px;
-      font-size: .76rem;
-    }
-
-    .iframe-guard {
-      position: absolute;
-      inset: 0;
-      display: none;
-      place-items: center;
-      text-align: center;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(7, 9, 15, 0.58), rgba(7, 9, 15, 0.78));
-      color: #d8e1ff;
-      font-size: .86rem;
-      z-index: 2;
-    }
-
-    .player-wrap.shielded .iframe-guard {
-      display: grid;
-    }
-
     @media (max-width: 980px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { max-height: 44vh; }
@@ -296,7 +260,6 @@
         min-height: 210px;
         max-height: calc(100vh - 300px);
       }
-      .shield-controls { margin: 0 10px 8px; }
     }
   </style>
 </head>
@@ -331,7 +294,7 @@
         <div class="player-head">
           <div>
             <h2 class="player-title" id="playerTitle">Choose a channel</h2>
-            <div class="meta" id="playerMeta">Select a channel from the left list to start streaming.</div>
+            <div class="meta" id="playerMeta">Select a channel from the left list to start streaming (autoplay is enabled when supported).</div>
           </div>
           <div class="actions">
             <button id="pinCurrent" class="btn-icon pin" title="Pin channel">📌</button>
@@ -340,18 +303,8 @@
           </div>
         </div>
 
-        <div class="shield-controls">
-          <span id="shieldStatus">Redirect shield: ON (recommended)</span>
-          <div class="actions">
-            <button id="unlockControls" class="chip" type="button">Unlock controls (10s)</button>
-          </div>
-        </div>
-
-        <div class="player-wrap shielded" id="playerWrap">
+        <div class="player-wrap" id="playerWrap">
           <div class="empty">Pick a channel to play its embedded stream.</div>
-          <div class="iframe-guard" id="iframeGuard">
-            Player interaction is temporarily blocked to reduce ad redirects. Use <strong>Unlock controls (10s)</strong> only when needed.
-          </div>
         </div>
       </div>
     </main>
@@ -487,9 +440,7 @@
       playerMeta: document.getElementById('playerMeta'),
       pinCurrent: document.getElementById('pinCurrent'),
       favoriteCurrent: document.getElementById('favoriteCurrent'),
-      copyCurrentLink: document.getElementById('copyCurrentLink'),
-      shieldStatus: document.getElementById('shieldStatus'),
-      unlockControls: document.getElementById('unlockControls')
+      copyCurrentLink: document.getElementById('copyCurrentLink')
     };
 
     // Best-effort anti-popup guard outside the cross-origin iframe.
@@ -548,28 +499,6 @@
       if (location.hash !== next) history.replaceState(null, '', next);
     }
 
-    let shieldTimer = null;
-    let shieldLocked = true;
-
-    function setShield(locked) {
-      shieldLocked = locked;
-      els.playerWrap.classList.toggle('shielded', locked);
-      els.shieldStatus.textContent = locked
-        ? 'Redirect shield: ON (recommended)'
-        : 'Redirect shield: OFF for 10s (interactions enabled)';
-      els.unlockControls.textContent = locked ? 'Unlock controls (10s)' : 'Lock now';
-    }
-
-    function unlockControlsTemporarily() {
-      if (shieldTimer) clearTimeout(shieldTimer);
-      if (shieldLocked) {
-        setShield(false);
-        shieldTimer = setTimeout(() => setShield(true), 10000);
-      } else {
-        setShield(true);
-      }
-    }
-
     function togglePinned(name) {
       appState.pinned.has(name) ? appState.pinned.delete(name) : appState.pinned.add(name);
       saveState();
@@ -601,23 +530,23 @@
     function embedWithAutoplay(url) {
       const u = new URL(url);
       u.searchParams.set('autoplay', '1');
+      u.searchParams.set('mute', '1');
       u.searchParams.set('muted', '1');
+      u.searchParams.set('playsinline', '1');
       return u.toString();
     }
 
     function updatePlayer(channel) {
       if (!channel) {
         els.playerTitle.textContent = 'Choose a channel';
-        els.playerMeta.textContent = 'Select a channel from the left list to start streaming.';
-        els.playerWrap.innerHTML = '<div class="empty">Pick a channel to play its embedded stream.</div><div class="iframe-guard" id="iframeGuard">Player interaction is temporarily blocked to reduce ad redirects. Use <strong>Unlock controls (10s)</strong> only when needed.</div>';
-        setShield(true);
+        els.playerMeta.textContent = 'Select a channel from the left list to start streaming (autoplay is enabled when supported).';
+        els.playerWrap.innerHTML = '<div class="empty">Pick a channel to play its embedded stream.</div>';
       } else {
         els.playerTitle.textContent = channel.name;
         els.playerMeta.textContent = `${channel.category} • ${channel.description}`;
         const autoplaySrc = embedWithAutoplay(channel.embed);
-        els.playerWrap.innerHTML = `<iframe allow="autoplay; fullscreen" src="${autoplaySrc}" title="${channel.name}" loading="eager"></iframe><div class="iframe-guard" id="iframeGuard">Player interaction is temporarily blocked to reduce ad redirects. Use <strong>Unlock controls (10s)</strong> only when needed.</div>`;
+        els.playerWrap.innerHTML = `<iframe allow="autoplay; fullscreen" src="${autoplaySrc}" title="${channel.name}" loading="eager"></iframe>`;
         syncHash(channel.name);
-        setShield(true);
       }
 
       els.pinCurrent.classList.toggle('active', !!channel && isPinned(channel.name));
@@ -751,8 +680,6 @@
       if (!appState.selected) return;
       copyText(buildChannelLink(appState.selected));
     });
-
-    els.unlockControls.addEventListener('click', unlockControlsTemporarily);
 
     window.addEventListener('hashchange', () => {
       const params = new URLSearchParams(location.hash.replace(/^#/, ''));
