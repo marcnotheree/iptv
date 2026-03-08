@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPTV Dark Hub</title>
+  <style>
+    :root {
+      --bg: #0a0c12;
+      --panel: #10131d;
+      --panel-2: #151a27;
+      --text: #e8ecff;
+      --muted: #8f98b9;
+      --accent: #6f8cff;
+      --accent-2: #31d0aa;
+      --danger: #ff5f7a;
+      --border: #252b40;
+      --chip: #1b2133;
+      --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top right, #1a2240 0%, #0b0d14 45%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 14px;
+      padding: 14px;
+      min-height: 100vh;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(25, 31, 48, .9), rgba(16, 19, 29, .95));
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.3px;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .controls {
+      padding: 12px 16px;
+      display: grid;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    input, select {
+      width: 100%;
+      background: #0f1320;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(111, 140, 255, 0.2);
+    }
+
+    .toggles {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: var(--chip);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      user-select: none;
+    }
+
+    .chip.active { border-color: var(--accent); color: #dfe7ff; }
+
+    .channel-list {
+      padding: 8px;
+      overflow: auto;
+      flex: 1;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .channel-item {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      display: grid;
+      gap: 8px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+
+    .channel-item:hover { transform: translateY(-1px); border-color: #3b4568; }
+    .channel-item.active { border-color: var(--accent); }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .channel-title {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .badge {
+      font-size: .7rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #222b43;
+      color: #bec9f7;
+      border: 1px solid #33406a;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      border: 1px solid var(--border);
+      background: #0f1422;
+      color: #a6b0d6;
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 0.95rem;
+    }
+
+    .btn-icon.active.pin { color: var(--accent-2); border-color: var(--accent-2); }
+    .btn-icon.active.fav { color: #ffd166; border-color: #ffd166; }
+
+    .main {
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      overflow: hidden;
+    }
+
+    .notice {
+      margin: 14px;
+      padding: 12px;
+      background: #10192d;
+      border: 1px solid #29406b;
+      border-radius: 10px;
+      color: #bfcefb;
+      font-size: .84rem;
+      line-height: 1.4;
+    }
+
+    .player-head {
+      margin: 0 14px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .player-title { margin: 0; font-size: 1.05rem; }
+    .meta { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+    .player-wrap {
+      margin: 0 14px 14px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #07090f;
+      position: relative;
+      min-height: 60vh;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 60vh;
+      border: 0;
+      background: #07090f;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 16px;
+      text-align: center;
+      font-size: .9rem;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { max-height: 48vh; }
+      .player-wrap, iframe { min-height: 48vh; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel sidebar">
+      <header>
+        <h1>IPTV Dark Hub</h1>
+        <p class="subtitle">Fast channel access with favorites, pins, and detailed channel info.</p>
+      </header>
+
+      <section class="controls">
+        <input id="searchInput" placeholder="Search channels..." />
+        <select id="categorySelect">
+          <option value="all">All categories</option>
+        </select>
+        <div class="toggles">
+          <button id="showFavorites" class="chip">★ Favorites only</button>
+          <button id="showPinned" class="chip">📌 Pinned only</button>
+        </div>
+      </section>
+
+      <section class="channel-list" id="channelList"></section>
+    </aside>
+
+    <main class="panel main">
+      <div class="notice">
+        <strong>Important Notice:</strong> All channels are offered for free and experimental testing new technologies without any warranty or obligation by the source provider. Use only embed links in iframe context. Do not use iframe sandbox attributes and do not open embed links directly in browser tabs.
+      </div>
+
+      <div class="player-head">
+        <div>
+          <h2 class="player-title" id="playerTitle">Choose a channel</h2>
+          <div class="meta" id="playerMeta">Select a channel from the left list to start streaming.</div>
+        </div>
+        <div class="actions">
+          <button id="pinCurrent" class="btn-icon pin" title="Pin channel">📌</button>
+          <button id="favoriteCurrent" class="btn-icon fav" title="Favorite channel">★</button>
+        </div>
+      </div>
+
+      <div class="player-wrap" id="playerWrap">
+        <div class="empty">Pick a channel to play its embedded stream.</div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const channels = [
+      {name:'PROTV HD',embed:'https://canale-tv.com/channel/pr0tv.html',category:'General',description:'Romanian general entertainment and news.'},
+      {name:'A1 HD',embed:'https://canale-tv.com/channel/a1.html',category:'General',description:'Popular Romanian general TV content.'},
+      {name:'TVR1',embed:'https://canale-tv.com/channel/tvr1.html',category:'General',description:'Romanian public broadcaster main channel.'},
+      {name:'TVR2',embed:'https://canale-tv.com/channel/tvr2.html',category:'General',description:'Public TV with entertainment and culture.'},
+      {name:'CANAL D',embed:'https://canale-tv.com/channel/canald.html',category:'General',description:'General entertainment, reality, and shows.'},
+      {name:'CANAL D2',embed:'https://canale-tv.com/channel/canald2.html',category:'General',description:'Companion channel for Canal D programming.'},
+      {name:'PRIMA TV',embed:'https://canale-tv.com/channel/primatv.html',category:'General',description:'Mainstream Romanian TV entertainment.'},
+      {name:'NATIONAL TV',embed:'https://canale-tv.com/channel/nationaltv.html',category:'General',description:'General audience entertainment channel.'},
+      {name:'TVR 3',embed:'https://canale-tv.com/channel/tvr3.html',category:'General',description:'Regional and cultural public broadcasting.'},
+      {name:'TVR INTERNATIONAL',embed:'https://canale-tv.com/channel/tvrinter.html',category:'General',description:'International public TVR feed.'},
+      {name:'PROCINEMA',embed:'https://canale-tv.com/channel/procinema.html',category:'Movies',description:'Movie-focused channel with varied cinema.'},
+      {name:'ACASA TV',embed:'https://canale-tv.com/channel/acasatv.html',category:'General',description:'Family and entertainment content.'},
+      {name:'ACASA GOLD',embed:'https://canale-tv.com/channel/acasagold.html',category:'General',description:'Classic and lifestyle entertainment selection.'},
+      {name:'ANTENA STARS',embed:'https://canale-tv.com/channel/astars.html',category:'General',description:'Entertainment and celebrity-focused content.'},
+      {name:'NATIONAL 24 PLUS',embed:'https://canale-tv.com/channel/national24plus.html',category:'News',description:'Romanian rolling news and updates.'},
+      {name:'A3 CNN',embed:'https://canale-tv.com/channel/a3cnn.html',category:'News',description:'News, politics, and breaking events.'},
+      {name:'ROMANIA TV',embed:'https://canale-tv.com/channel/romaniatv.html',category:'News',description:'24-hour Romanian news channel.'},
+      {name:'REALITATEA TV',embed:'https://canale-tv.com/channel/realitateatv.html',category:'News',description:'Live news and talk programs.'},
+      {name:'PRIMA NEWS',embed:'https://canale-tv.com/channel/primanews.html',category:'News',description:'Current affairs and continuous news.'},
+      {name:'B1 TV',embed:'https://canale-tv.com/channel/b1tv.html',category:'News',description:'Talk shows and news coverage.'},
+      {name:'EURONEWS ROMANIA',embed:'https://canale-tv.com/channel/euronewsromnia.html',category:'News',description:'International and Romanian news reports.'},
+      {name:'NEWS24',embed:'https://canale-tv.com/channel/digi24.html',category:'News',description:'Fast-paced live news programming.'},
+      {name:'CNN',embed:'https://canale-tv.com/channel/cnn.html',category:'News',description:'Global breaking news network.'},
+      {name:'BBC NEWS',embed:'https://canale-tv.com/channel/bbcnews.html',category:'News',description:'International news and reports.'},
+      {name:'CBS REALITY',embed:'https://canale-tv.com/channel/cbsreality.html',category:'Documentary',description:'Reality and factual entertainment.'},
+      {name:'SUPERSPORT 1',embed:'https://canale-tv.com/channel/dgsp1.html',category:'Sports',description:'Live sports broadcasts and analysis.'},
+      {name:'SUPERSPORT 2',embed:'https://canale-tv.com/channel/dgsp2.html',category:'Sports',description:'Additional live matches and sports events.'},
+      {name:'SUPERSPORT 3',embed:'https://canale-tv.com/channel/dgsp3.html',category:'Sports',description:'Extended sports coverage lineup.'},
+      {name:'SUPERSPORT 4',embed:'https://canale-tv.com/channel/dgsp4.html',category:'Sports',description:'Sports events and commentary.'},
+      {name:'PRO ARENA',embed:'https://canale-tv.com/channel/proarena.html',category:'Sports',description:'Major competitions and sports updates.'},
+      {name:'TVR SPORT',embed:'https://canale-tv.com/channel/tvrsport.html',category:'Sports',description:'Public broadcaster sports channel.'},
+      {name:'PRIMA SPORT 1',embed:'https://canale-tv.com/channel/primasp1.html',category:'Sports',description:'Live sports and football coverage.'},
+      {name:'PRIMA SPORT 2',embed:'https://canale-tv.com/channel/primasp2.html',category:'Sports',description:'Secondary feed for sports events.'},
+      {name:'PRIMA SPORT 3',embed:'https://canale-tv.com/channel/primasp3.html',category:'Sports',description:'Additional sports competitions.'},
+      {name:'PRIMA SPORT 4',embed:'https://canale-tv.com/channel/primasp4.html',category:'Sports',description:'Extended sports package channel.'},
+      {name:'PRIMA SPORT 5',embed:'https://canale-tv.com/channel/primasp5.html',category:'Sports',description:'Extra coverage for overlapping matches.'},
+      {name:'PPV 1',embed:'https://canale-tv.com/channel/ppv1.html',category:'Sports',description:'Pay-per-view style special events.'},
+      {name:'PPV 2',embed:'https://canale-tv.com/channel/ppv2.html',category:'Sports',description:'Additional premium sports events.'},
+      {name:'PPV 3',embed:'https://canale-tv.com/channel/ppv3.html',category:'Sports',description:'Special sports event stream.'},
+      {name:'SPORT EXTRA',embed:'https://canale-tv.com/channel/sportextra.html',category:'Sports',description:'Supplementary sports events and analysis.'},
+      {name:'EUR0SP0RT 1',embed:'https://canale-tv.com/channel/eurosp1.html',category:'Sports',description:'International sports competitions.'},
+      {name:'EUR0SP0RT 2',embed:'https://canale-tv.com/channel/eurosp2.html',category:'Sports',description:'Additional multi-sport programming.'},
+      {name:'HB0',embed:'https://canale-tv.com/channel/hb.html',category:'Movies',description:'Premium movies and original series.'},
+      {name:'HB0 2',embed:'https://canale-tv.com/channel/hb2.html',category:'Movies',description:'Alternate HBO movie and series lineup.'},
+      {name:'HB0 3',embed:'https://canale-tv.com/channel/hb3.html',category:'Movies',description:'Additional premium entertainment feed.'},
+      {name:'DIVA',embed:'https://canale-tv.com/channel/diva.html',category:'Movies',description:'Drama and lifestyle entertainment.'},
+      {name:'HAPPY TV',embed:'https://canale-tv.com/channel/happy.html',category:'Movies',description:'Light entertainment and movies.'},
+      {name:'FILM CAFE',embed:'https://canale-tv.com/channel/filmcafe.html',category:'Movies',description:'Feature films and cinema classics.'},
+      {name:'TV 1000',embed:'https://canale-tv.com/channel/tv1000.html',category:'Movies',description:'International movie catalog channel.'},
+      {name:'FlLM N0W',embed:'https://canale-tv.com/channel/fnow.html',category:'Movies',description:'Recent films and popular titles.'},
+      {name:'EPIC DRAMA',embed:'https://canale-tv.com/channel/epdrama.html',category:'Movies',description:'Period and modern drama series.'},
+      {name:'AMC',embed:'https://canale-tv.com/channel/amc.html',category:'Movies',description:'Series and cinematic entertainment.'},
+      {name:'SH0WTIME 1',embed:'https://canale-tv.com/channel/show1.html',category:'Movies',description:'Premium movies and original productions.'},
+      {name:'SH0WTIME 2',embed:'https://canale-tv.com/channel/show2.html',category:'Movies',description:'Second premium entertainment feed.'},
+      {name:'AXN HD',embed:'https://canale-tv.com/channel/axn.html',category:'Movies',description:'Action and drama series channel.'},
+      {name:'AXN SPIN',embed:'https://canale-tv.com/channel/axnspin.html',category:'Movies',description:'Youth-focused series and movies.'},
+      {name:'AXN BLACK',embed:'https://canale-tv.com/channel/axnblack.html',category:'Movies',description:'Dark thrillers and crime series.'},
+      {name:'AXN WHITE',embed:'https://canale-tv.com/channel/axnwhite.html',category:'Movies',description:'Drama and romantic series channel.'},
+      {name:'CINEMAX',embed:'https://canale-tv.com/channel/cmax.html',category:'Movies',description:'Cinema and premium films.'},
+      {name:'CINEMAX 2',embed:'https://canale-tv.com/channel/cmax2.html',category:'Movies',description:'Alternative Cinemax movie feed.'},
+      {name:'BOLYWOOD TV',embed:'https://canale-tv.com/channel/bolywoodtv.html',category:'Movies',description:'Bollywood films and entertainment.'},
+      {name:'COMEDY CENTRAL',embed:'https://canale-tv.com/channel/ccentral.html',category:'Entertainment',description:'Comedy shows and sitcoms.'},
+      {name:'WARNER TV',embed:'https://canale-tv.com/channel/wornertv.html',category:'Entertainment',description:'Warner series and films selection.'},
+      {name:'BBC FIRST',embed:'https://canale-tv.com/channel/bfirst.html',category:'Entertainment',description:'British drama and premium series.'},
+      {name:'MINIMAX',embed:'https://canale-tv.com/channel/minimax.html',category:'Kids',description:'Kids cartoons and educational shows.'},
+      {name:'CARTOON NETWORK',embed:'https://canale-tv.com/channel/cartoonnet.html',category:'Kids',description:'Animated series for children.'},
+      {name:'DISNEY CHANNEL',embed:'https://canale-tv.com/channel/disneych.html',category:'Kids',description:'Family and kids Disney content.'},
+      {name:'TEEN NICK',embed:'https://canale-tv.com/channel/teennick.html',category:'Kids',description:'Teen-focused series and shows.'},
+      {name:'NICKELODEON',embed:'https://canale-tv.com/channel/nickelodeon.html',category:'Kids',description:'Kids entertainment and cartoons.'},
+      {name:'DISNEY JR',embed:'https://canale-tv.com/channel/disneyjr.html',category:'Kids',description:'Preschool Disney shows.'},
+      {name:'CARTOONITO',embed:'https://canale-tv.com/channel/cartonito.html',category:'Kids',description:'Young children animation content.'},
+      {name:'NICKTOONS',embed:'https://canale-tv.com/channel/nicktoons.html',category:'Kids',description:'Cartoons and animated classics.'},
+      {name:'NICK JR',embed:'https://canale-tv.com/channel/nickjr.html',category:'Kids',description:'Preschool and early-learning programs.'},
+      {name:'JIM JAM',embed:'https://canale-tv.com/channel/jimjam.html',category:'Kids',description:'Early childhood cartoons and music.'},
+      {name:'DUCK TV',embed:'https://canale-tv.com/channel/ducktv.html',category:'Kids',description:'Toddler-safe visual programming.'},
+      {name:'DISCOVERY CH',embed:'https://canale-tv.com/channel/discoverych.html',category:'Documentary',description:'Science, tech, and reality docs.'},
+      {name:'HISTORY CHANNEL',embed:'https://canale-tv.com/channel/historych.html',category:'Documentary',description:'Historical series and documentaries.'},
+      {name:'NAT GEO PEOPLE',embed:'https://canale-tv.com/channel/netgeopeople.html',category:'Documentary',description:'Human stories and cultures worldwide.'},
+      {name:'NATIONAL GEOGRAPHIC',embed:'https://canale-tv.com/channel/natgeo.html',category:'Documentary',description:'Science, nature, and exploration.'},
+      {name:'ID INVESTIGATION',embed:'https://canale-tv.com/channel/idinvest.html',category:'Documentary',description:'True crime documentary channel.'},
+      {name:'CRIME & INVESTIGATION',embed:'https://canale-tv.com/channel/crimeinvest.html',category:'Documentary',description:'Crime stories and investigations.'},
+      {name:'TLC',embed:'https://canale-tv.com/channel/tlc.html',category:'Documentary',description:'Lifestyle and real-life series.'},
+      {name:'NAT GEO WILD',embed:'https://canale-tv.com/channel/natgeowild.html',category:'Documentary',description:'Wildlife and nature documentaries.'},
+      {name:'BBC EARTH',embed:'https://canale-tv.com/channel/bbcearth.html',category:'Documentary',description:'Premium nature and earth stories.'},
+      {name:'VIASAT HISTORY',embed:'https://canale-tv.com/channel/viahist.html',category:'Documentary',description:'History-focused documentary content.'},
+      {name:'VIASAT NATURE',embed:'https://canale-tv.com/channel/vianature.html',category:'Documentary',description:'Natural world and wildlife series.'},
+      {name:'VIASAT EXPLORER',embed:'https://canale-tv.com/channel/viaexplorer.html',category:'Documentary',description:'Adventure and exploration programming.'},
+      {name:'TRAVEL MIX',embed:'https://canale-tv.com/channel/travelmix.html',category:'Lifestyle',description:'Travel destinations and experiences.'},
+      {name:'PAPRIKA',embed:'https://canale-tv.com/channel/paprika.html',category:'Lifestyle',description:'Cooking and culinary inspiration.'},
+      {name:'HGTV',embed:'https://canale-tv.com/channel/hgtv.html',category:'Lifestyle',description:'Home design and renovation shows.'},
+      {name:'TARAF TV',embed:'https://canale-tv.com/channel/taraf.html',category:'Music',description:'Traditional and popular music.'},
+      {name:'FAVORIT TV',embed:'https://canale-tv.com/channel/favorit.html',category:'Music',description:'Romanian music and entertainment.'},
+      {name:'ETNO TV',embed:'https://canale-tv.com/channel/etno.html',category:'Music',description:'Folk and ethnic music programming.'},
+      {name:'HIT MUSIC',embed:'https://canale-tv.com/channel/hitmusic.html',category:'Music',description:'Modern chart hits and clips.'},
+      {name:'BALCAN MUSIC',embed:'https://canale-tv.com/channel/balcanmuz.html',category:'Music',description:'Balkan music selections.'},
+      {name:'UTV',embed:'https://canale-tv.com/channel/utv.html',category:'Music',description:'Music videos and pop culture.'},
+      {name:'KISS TV',embed:'https://canale-tv.com/channel/kisstv.html',category:'Music',description:'Trending hits and music videos.'},
+      {name:'MUSIC CHANNEL',embed:'https://canale-tv.com/channel/musicch.html',category:'Music',description:'Continuous music block channel.'},
+      {name:'ZU TV',embed:'https://canale-tv.com/channel/zutv.html',category:'Music',description:'Romanian and international hits.'},
+      {name:'Fish & Hunting TV',embed:'https://canale-tv.com/channel/fishy.html',category:'Lifestyle',description:'Fishing and hunting themed content.'},
+      {name:'F1lm B0X',embed:'https://canale-tv.com/channel/fbox1.html',category:'Movies',description:'International movie programming.'},
+      {name:'F1lm B0X Extra',embed:'https://canale-tv.com/channel/fbox-extra.html',category:'Movies',description:'Expanded FilmBox movie library.'},
+      {name:'F1lm B0X Premium',embed:'https://canale-tv.com/channel/fbox-premium.html',category:'Movies',description:'Premium curated films selection.'},
+      {name:'Canal 33',embed:'https://canale-tv.com/channel/canal-33.html',category:'General',description:'Romanian cultural and social programs.'},
+      {name:'Dizi',embed:'https://canale-tv.com/channel/dizy.html',category:'Entertainment',description:'Turkish drama and serial content.'}
+    ];
+
+    const appState = {
+      selected: null,
+      search: '',
+      category: 'all',
+      favoritesOnly: false,
+      pinnedOnly: false,
+      favorites: new Set(JSON.parse(localStorage.getItem('iptv-favorites') || '[]')),
+      pinned: new Set(JSON.parse(localStorage.getItem('iptv-pinned') || '[]'))
+    };
+
+    const els = {
+      list: document.getElementById('channelList'),
+      search: document.getElementById('searchInput'),
+      category: document.getElementById('categorySelect'),
+      showFav: document.getElementById('showFavorites'),
+      showPin: document.getElementById('showPinned'),
+      playerWrap: document.getElementById('playerWrap'),
+      playerTitle: document.getElementById('playerTitle'),
+      playerMeta: document.getElementById('playerMeta'),
+      pinCurrent: document.getElementById('pinCurrent'),
+      favoriteCurrent: document.getElementById('favoriteCurrent')
+    };
+
+    function saveState() {
+      localStorage.setItem('iptv-favorites', JSON.stringify([...appState.favorites]));
+      localStorage.setItem('iptv-pinned', JSON.stringify([...appState.pinned]));
+    }
+
+    function isPinned(name) { return appState.pinned.has(name); }
+    function isFavorite(name) { return appState.favorites.has(name); }
+
+    function togglePinned(name) {
+      appState.pinned.has(name) ? appState.pinned.delete(name) : appState.pinned.add(name);
+      saveState();
+      render();
+    }
+
+    function toggleFavorite(name) {
+      appState.favorites.has(name) ? appState.favorites.delete(name) : appState.favorites.add(name);
+      saveState();
+      render();
+    }
+
+    function filteredChannels() {
+      const q = appState.search.toLowerCase();
+      return channels
+        .filter(c => appState.category === 'all' || c.category === appState.category)
+        .filter(c => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q))
+        .filter(c => !appState.favoritesOnly || isFavorite(c.name))
+        .filter(c => !appState.pinnedOnly || isPinned(c.name))
+        .sort((a, b) => {
+          const pinDelta = Number(isPinned(b.name)) - Number(isPinned(a.name));
+          if (pinDelta !== 0) return pinDelta;
+          const favDelta = Number(isFavorite(b.name)) - Number(isFavorite(a.name));
+          if (favDelta !== 0) return favDelta;
+          return a.name.localeCompare(b.name);
+        });
+    }
+
+    function updatePlayer(channel) {
+      if (!channel) {
+        els.playerTitle.textContent = 'Choose a channel';
+        els.playerMeta.textContent = 'Select a channel from the left list to start streaming.';
+        els.playerWrap.innerHTML = '<div class="empty">Pick a channel to play its embedded stream.</div>';
+      } else {
+        els.playerTitle.textContent = channel.name;
+        els.playerMeta.textContent = `${channel.category} • ${channel.description}`;
+        els.playerWrap.innerHTML = `<iframe allow="autoplay; fullscreen" src="${channel.embed}" title="${channel.name}"></iframe>`;
+      }
+
+      els.pinCurrent.classList.toggle('active', !!channel && isPinned(channel.name));
+      els.favoriteCurrent.classList.toggle('active', !!channel && isFavorite(channel.name));
+    }
+
+    function ensureSelected(list) {
+      if (!list.length) {
+        appState.selected = null;
+        return null;
+      }
+      const found = list.find(c => c.name === appState.selected);
+      if (found) return found;
+      appState.selected = list[0].name;
+      return list[0];
+    }
+
+    function render() {
+      const list = filteredChannels();
+      const current = ensureSelected(list);
+
+      els.list.innerHTML = '';
+      if (!list.length) {
+        els.list.innerHTML = '<div class="empty">No channels match your filters.</div>';
+      } else {
+        for (const c of list) {
+          const item = document.createElement('article');
+          item.className = `channel-item ${c.name === appState.selected ? 'active' : ''}`;
+
+          const row1 = document.createElement('div');
+          row1.className = 'row';
+
+          const title = document.createElement('h3');
+          title.className = 'channel-title';
+          title.textContent = c.name;
+
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = c.category;
+
+          row1.append(title, badge);
+
+          const row2 = document.createElement('div');
+          row2.className = 'row';
+          row2.innerHTML = `<small class="meta">${c.description}</small>`;
+
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+
+          const pinBtn = document.createElement('button');
+          pinBtn.className = `btn-icon pin ${isPinned(c.name) ? 'active' : ''}`;
+          pinBtn.textContent = '📌';
+          pinBtn.title = 'Pin channel';
+          pinBtn.onclick = (e) => { e.stopPropagation(); togglePinned(c.name); };
+
+          const favBtn = document.createElement('button');
+          favBtn.className = `btn-icon fav ${isFavorite(c.name) ? 'active' : ''}`;
+          favBtn.textContent = '★';
+          favBtn.title = 'Favorite channel';
+          favBtn.onclick = (e) => { e.stopPropagation(); toggleFavorite(c.name); };
+
+          actions.append(pinBtn, favBtn);
+          row2.append(actions);
+
+          item.append(row1, row2);
+          item.onclick = () => {
+            appState.selected = c.name;
+            updatePlayer(c);
+            render();
+          };
+
+          els.list.append(item);
+        }
+      }
+
+      updatePlayer(current);
+      els.showFav.classList.toggle('active', appState.favoritesOnly);
+      els.showPin.classList.toggle('active', appState.pinnedOnly);
+    }
+
+    function initCategories() {
+      const categories = [...new Set(channels.map(c => c.category))].sort();
+      for (const cat of categories) {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        els.category.append(option);
+      }
+    }
+
+    els.search.addEventListener('input', (e) => {
+      appState.search = e.target.value.trim();
+      render();
+    });
+
+    els.category.addEventListener('change', (e) => {
+      appState.category = e.target.value;
+      render();
+    });
+
+    els.showFav.addEventListener('click', () => {
+      appState.favoritesOnly = !appState.favoritesOnly;
+      render();
+    });
+
+    els.showPin.addEventListener('click', () => {
+      appState.pinnedOnly = !appState.pinnedOnly;
+      render();
+    });
+
+    els.pinCurrent.addEventListener('click', () => {
+      if (!appState.selected) return;
+      togglePinned(appState.selected);
+    });
+
+    els.favoriteCurrent.addEventListener('click', () => {
+      if (!appState.selected) return;
+      toggleFavorite(appState.selected);
+    });
+
+    initCategories();
+    render();
+  </script>
+</body>
+</html>
