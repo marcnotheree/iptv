@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPTV Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>IPTV Hub</h1>
+        <p>Simple, modern, experimental TV directory.</p>
+      </div>
+
+      <div class="notice">
+        <h2>Important Notice</h2>
+        <p>
+          All channels are offered for free and experimental testing new technologies
+          without any warranty or obligation by our part. You can grab our
+          <strong>embed code</strong> to display any video on another website.
+        </p>
+        <p>
+          Do not try to open the EMBEDS directly in your browser; these are available
+          only as embeds. <code>&lt;meta name="referrer" content="no-referrer"&gt;</code>
+          and iframe sandbox are not allowed, or streams may fail.
+        </p>
+      </div>
+
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search channels..." />
+        <div class="filters">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="pinned">Pinned</button>
+          <button class="chip" data-filter="favorite">Favorites</button>
+        </div>
+      </div>
+
+      <div class="channel-list-wrap">
+        <ul id="channelList" class="channel-list"></ul>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section class="player-panel">
+        <div class="player-header">
+          <div>
+            <h2 id="channelName">Select a channel</h2>
+            <p id="channelMeta">Channel information will appear here.</p>
+          </div>
+          <div class="actions">
+            <button id="pinBtn" class="icon-btn" title="Pin channel">📌</button>
+            <button id="favBtn" class="icon-btn" title="Favorite channel">★</button>
+          </div>
+        </div>
+
+        <div class="player-wrap">
+          <iframe
+            id="playerFrame"
+            title="IPTV Player"
+            allow="autoplay; fullscreen"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="info-panel">
+        <h3>Channel Info</h3>
+        <div id="channelInfo" class="info-cards">
+          <article class="card">
+            <h4>Getting started</h4>
+            <p>Pick any channel from the list to start streaming in the embedded player.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
