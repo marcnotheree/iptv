@@ -30,8 +30,7 @@
     }
 
     .app {
-      display: grid;
-      grid-template-columns: 340px minmax(0, 1fr);
+      display: flex;
       gap: 14px;
       padding: 14px;
       min-height: 100vh;
@@ -213,6 +212,7 @@
 
     .player-title { margin: 0; font-size: 1.05rem; }
     .meta { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+    .epg { color: var(--muted); font-size: .85rem; margin-top: 4px; }
 
     .player-wrap {
       margin: 0 14px 14px;
@@ -242,8 +242,9 @@
     }
 
     @media (max-width: 980px) {
-      .app { grid-template-columns: 1fr; }
+      .app { flex-direction: column; }
       .sidebar { max-height: 44vh; }
+      .main { min-height: 56vh; }
       .content-wrap { width: 100%; }
       .player-wrap {
         min-height: 240px;
@@ -276,6 +277,9 @@
         <select id="categorySelect">
           <option value="all">All categories</option>
         </select>
+        <select id="countrySelect">
+          <option value="all">All countries</option>
+        </select>
         <div class="toggles">
           <button id="showFavorites" class="chip">★ Favorites only</button>
           <button id="showPinned" class="chip">📌 Pinned only</button>
@@ -295,6 +299,7 @@
           <div>
             <h2 class="player-title" id="playerTitle">Choose a channel</h2>
             <div class="meta" id="playerMeta">Select a channel from the left list to start streaming (autoplay is enabled when supported).</div>
+            <div class="epg" id="playerEpg">Currently Playing: Not Available</div>
           </div>
           <div class="actions">
             <button id="pinCurrent" class="btn-icon pin" title="Pin channel">📌</button>
@@ -312,117 +317,33 @@
 
   <script>
     const channels = [
-      {name:'PROTV HD',embed:'https://canale-tv.com/channel/pr0tv.html',category:'General',description:'Romanian general entertainment and news.'},
-      {name:'A1 HD',embed:'https://canale-tv.com/channel/a1.html',category:'General',description:'Popular Romanian general TV content.'},
-      {name:'TVR1',embed:'https://canale-tv.com/channel/tvr1.html',category:'General',description:'Romanian public broadcaster main channel.'},
-      {name:'TVR2',embed:'https://canale-tv.com/channel/tvr2.html',category:'General',description:'Public TV with entertainment and culture.'},
-      {name:'CANAL D',embed:'https://canale-tv.com/channel/canald.html',category:'General',description:'General entertainment, reality, and shows.'},
-      {name:'CANAL D2',embed:'https://canale-tv.com/channel/canald2.html',category:'General',description:'Companion channel for Canal D programming.'},
-      {name:'PRIMA TV',embed:'https://canale-tv.com/channel/primatv.html',category:'General',description:'Mainstream Romanian TV entertainment.'},
-      {name:'NATIONAL TV',embed:'https://canale-tv.com/channel/nationaltv.html',category:'General',description:'General audience entertainment channel.'},
-      {name:'TVR 3',embed:'https://canale-tv.com/channel/tvr3.html',category:'General',description:'Regional and cultural public broadcasting.'},
-      {name:'TVR INTERNATIONAL',embed:'https://canale-tv.com/channel/tvrinter.html',category:'General',description:'International public TVR feed.'},
-      {name:'PROCINEMA',embed:'https://canale-tv.com/channel/procinema.html',category:'Movies',description:'Movie-focused channel with varied cinema.'},
-      {name:'ACASA TV',embed:'https://canale-tv.com/channel/acasatv.html',category:'General',description:'Family and entertainment content.'},
-      {name:'ACASA GOLD',embed:'https://canale-tv.com/channel/acasagold.html',category:'General',description:'Classic and lifestyle entertainment selection.'},
-      {name:'ANTENA STARS',embed:'https://canale-tv.com/channel/astars.html',category:'General',description:'Entertainment and celebrity-focused content.'},
-      {name:'NATIONAL 24 PLUS',embed:'https://canale-tv.com/channel/national24plus.html',category:'News',description:'Romanian rolling news and updates.'},
-      {name:'A3 CNN',embed:'https://canale-tv.com/channel/a3cnn.html',category:'News',description:'News, politics, and breaking events.'},
-      {name:'ROMANIA TV',embed:'https://canale-tv.com/channel/romaniatv.html',category:'News',description:'24-hour Romanian news channel.'},
-      {name:'REALITATEA TV',embed:'https://canale-tv.com/channel/realitateatv.html',category:'News',description:'Live news and talk programs.'},
-      {name:'PRIMA NEWS',embed:'https://canale-tv.com/channel/primanews.html',category:'News',description:'Current affairs and continuous news.'},
-      {name:'B1 TV',embed:'https://canale-tv.com/channel/b1tv.html',category:'News',description:'Talk shows and news coverage.'},
-      {name:'EURONEWS ROMANIA',embed:'https://canale-tv.com/channel/euronewsromnia.html',category:'News',description:'International and Romanian news reports.'},
-      {name:'NEWS24',embed:'https://canale-tv.com/channel/digi24.html',category:'News',description:'Fast-paced live news programming.'},
-      {name:'CNN',embed:'https://canale-tv.com/channel/cnn.html',category:'News',description:'Global breaking news network.'},
-      {name:'BBC NEWS',embed:'https://canale-tv.com/channel/bbcnews.html',category:'News',description:'International news and reports.'},
-      {name:'CBS REALITY',embed:'https://canale-tv.com/channel/cbsreality.html',category:'Documentary',description:'Reality and factual entertainment.'},
-      {name:'SUPERSPORT 1',embed:'https://canale-tv.com/channel/dgsp1.html',category:'Sports',description:'Live sports broadcasts and analysis.'},
-      {name:'SUPERSPORT 2',embed:'https://canale-tv.com/channel/dgsp2.html',category:'Sports',description:'Additional live matches and sports events.'},
-      {name:'SUPERSPORT 3',embed:'https://canale-tv.com/channel/dgsp3.html',category:'Sports',description:'Extended sports coverage lineup.'},
-      {name:'SUPERSPORT 4',embed:'https://canale-tv.com/channel/dgsp4.html',category:'Sports',description:'Sports events and commentary.'},
-      {name:'PRO ARENA',embed:'https://canale-tv.com/channel/proarena.html',category:'Sports',description:'Major competitions and sports updates.'},
-      {name:'TVR SPORT',embed:'https://canale-tv.com/channel/tvrsport.html',category:'Sports',description:'Public broadcaster sports channel.'},
-      {name:'PRIMA SPORT 1',embed:'https://canale-tv.com/channel/primasp1.html',category:'Sports',description:'Live sports and football coverage.'},
-      {name:'PRIMA SPORT 2',embed:'https://canale-tv.com/channel/primasp2.html',category:'Sports',description:'Secondary feed for sports events.'},
-      {name:'PRIMA SPORT 3',embed:'https://canale-tv.com/channel/primasp3.html',category:'Sports',description:'Additional sports competitions.'},
-      {name:'PRIMA SPORT 4',embed:'https://canale-tv.com/channel/primasp4.html',category:'Sports',description:'Extended sports package channel.'},
-      {name:'PRIMA SPORT 5',embed:'https://canale-tv.com/channel/primasp5.html',category:'Sports',description:'Extra coverage for overlapping matches.'},
-      {name:'PPV 1',embed:'https://canale-tv.com/channel/ppv1.html',category:'Sports',description:'Pay-per-view style special events.'},
-      {name:'PPV 2',embed:'https://canale-tv.com/channel/ppv2.html',category:'Sports',description:'Additional premium sports events.'},
-      {name:'PPV 3',embed:'https://canale-tv.com/channel/ppv3.html',category:'Sports',description:'Special sports event stream.'},
-      {name:'SPORT EXTRA',embed:'https://canale-tv.com/channel/sportextra.html',category:'Sports',description:'Supplementary sports events and analysis.'},
-      {name:'EUR0SP0RT 1',embed:'https://canale-tv.com/channel/eurosp1.html',category:'Sports',description:'International sports competitions.'},
-      {name:'EUR0SP0RT 2',embed:'https://canale-tv.com/channel/eurosp2.html',category:'Sports',description:'Additional multi-sport programming.'},
-      {name:'HB0',embed:'https://canale-tv.com/channel/hb.html',category:'Movies',description:'Premium movies and original series.'},
-      {name:'HB0 2',embed:'https://canale-tv.com/channel/hb2.html',category:'Movies',description:'Alternate HBO movie and series lineup.'},
-      {name:'HB0 3',embed:'https://canale-tv.com/channel/hb3.html',category:'Movies',description:'Additional premium entertainment feed.'},
-      {name:'DIVA',embed:'https://canale-tv.com/channel/diva.html',category:'Movies',description:'Drama and lifestyle entertainment.'},
-      {name:'HAPPY TV',embed:'https://canale-tv.com/channel/happy.html',category:'Movies',description:'Light entertainment and movies.'},
-      {name:'FILM CAFE',embed:'https://canale-tv.com/channel/filmcafe.html',category:'Movies',description:'Feature films and cinema classics.'},
-      {name:'TV 1000',embed:'https://canale-tv.com/channel/tv1000.html',category:'Movies',description:'International movie catalog channel.'},
-      {name:'FlLM N0W',embed:'https://canale-tv.com/channel/fnow.html',category:'Movies',description:'Recent films and popular titles.'},
-      {name:'EPIC DRAMA',embed:'https://canale-tv.com/channel/epdrama.html',category:'Movies',description:'Period and modern drama series.'},
-      {name:'AMC',embed:'https://canale-tv.com/channel/amc.html',category:'Movies',description:'Series and cinematic entertainment.'},
-      {name:'SH0WTIME 1',embed:'https://canale-tv.com/channel/show1.html',category:'Movies',description:'Premium movies and original productions.'},
-      {name:'SH0WTIME 2',embed:'https://canale-tv.com/channel/show2.html',category:'Movies',description:'Second premium entertainment feed.'},
-      {name:'AXN HD',embed:'https://canale-tv.com/channel/axn.html',category:'Movies',description:'Action and drama series channel.'},
-      {name:'AXN SPIN',embed:'https://canale-tv.com/channel/axnspin.html',category:'Movies',description:'Youth-focused series and movies.'},
-      {name:'AXN BLACK',embed:'https://canale-tv.com/channel/axnblack.html',category:'Movies',description:'Dark thrillers and crime series.'},
-      {name:'AXN WHITE',embed:'https://canale-tv.com/channel/axnwhite.html',category:'Movies',description:'Drama and romantic series channel.'},
-      {name:'CINEMAX',embed:'https://canale-tv.com/channel/cmax.html',category:'Movies',description:'Cinema and premium films.'},
-      {name:'CINEMAX 2',embed:'https://canale-tv.com/channel/cmax2.html',category:'Movies',description:'Alternative Cinemax movie feed.'},
-      {name:'BOLYWOOD TV',embed:'https://canale-tv.com/channel/bolywoodtv.html',category:'Movies',description:'Bollywood films and entertainment.'},
-      {name:'COMEDY CENTRAL',embed:'https://canale-tv.com/channel/ccentral.html',category:'Entertainment',description:'Comedy shows and sitcoms.'},
-      {name:'WARNER TV',embed:'https://canale-tv.com/channel/wornertv.html',category:'Entertainment',description:'Warner series and films selection.'},
-      {name:'BBC FIRST',embed:'https://canale-tv.com/channel/bfirst.html',category:'Entertainment',description:'British drama and premium series.'},
-      {name:'MINIMAX',embed:'https://canale-tv.com/channel/minimax.html',category:'Kids',description:'Kids cartoons and educational shows.'},
-      {name:'CARTOON NETWORK',embed:'https://canale-tv.com/channel/cartoonnet.html',category:'Kids',description:'Animated series for children.'},
-      {name:'DISNEY CHANNEL',embed:'https://canale-tv.com/channel/disneych.html',category:'Kids',description:'Family and kids Disney content.'},
-      {name:'TEEN NICK',embed:'https://canale-tv.com/channel/teennick.html',category:'Kids',description:'Teen-focused series and shows.'},
-      {name:'NICKELODEON',embed:'https://canale-tv.com/channel/nickelodeon.html',category:'Kids',description:'Kids entertainment and cartoons.'},
-      {name:'DISNEY JR',embed:'https://canale-tv.com/channel/disneyjr.html',category:'Kids',description:'Preschool Disney shows.'},
-      {name:'CARTOONITO',embed:'https://canale-tv.com/channel/cartonito.html',category:'Kids',description:'Young children animation content.'},
-      {name:'NICKTOONS',embed:'https://canale-tv.com/channel/nicktoons.html',category:'Kids',description:'Cartoons and animated classics.'},
-      {name:'NICK JR',embed:'https://canale-tv.com/channel/nickjr.html',category:'Kids',description:'Preschool and early-learning programs.'},
-      {name:'JIM JAM',embed:'https://canale-tv.com/channel/jimjam.html',category:'Kids',description:'Early childhood cartoons and music.'},
-      {name:'DUCK TV',embed:'https://canale-tv.com/channel/ducktv.html',category:'Kids',description:'Toddler-safe visual programming.'},
-      {name:'DISCOVERY CH',embed:'https://canale-tv.com/channel/discoverych.html',category:'Documentary',description:'Science, tech, and reality docs.'},
-      {name:'HISTORY CHANNEL',embed:'https://canale-tv.com/channel/historych.html',category:'Documentary',description:'Historical series and documentaries.'},
-      {name:'NAT GEO PEOPLE',embed:'https://canale-tv.com/channel/netgeopeople.html',category:'Documentary',description:'Human stories and cultures worldwide.'},
-      {name:'NATIONAL GEOGRAPHIC',embed:'https://canale-tv.com/channel/natgeo.html',category:'Documentary',description:'Science, nature, and exploration.'},
-      {name:'ID INVESTIGATION',embed:'https://canale-tv.com/channel/idinvest.html',category:'Documentary',description:'True crime documentary channel.'},
-      {name:'CRIME & INVESTIGATION',embed:'https://canale-tv.com/channel/crimeinvest.html',category:'Documentary',description:'Crime stories and investigations.'},
-      {name:'TLC',embed:'https://canale-tv.com/channel/tlc.html',category:'Documentary',description:'Lifestyle and real-life series.'},
-      {name:'NAT GEO WILD',embed:'https://canale-tv.com/channel/natgeowild.html',category:'Documentary',description:'Wildlife and nature documentaries.'},
-      {name:'BBC EARTH',embed:'https://canale-tv.com/channel/bbcearth.html',category:'Documentary',description:'Premium nature and earth stories.'},
-      {name:'VIASAT HISTORY',embed:'https://canale-tv.com/channel/viahist.html',category:'Documentary',description:'History-focused documentary content.'},
-      {name:'VIASAT NATURE',embed:'https://canale-tv.com/channel/vianature.html',category:'Documentary',description:'Natural world and wildlife series.'},
-      {name:'VIASAT EXPLORER',embed:'https://canale-tv.com/channel/viaexplorer.html',category:'Documentary',description:'Adventure and exploration programming.'},
-      {name:'TRAVEL MIX',embed:'https://canale-tv.com/channel/travelmix.html',category:'Lifestyle',description:'Travel destinations and experiences.'},
-      {name:'PAPRIKA',embed:'https://canale-tv.com/channel/paprika.html',category:'Lifestyle',description:'Cooking and culinary inspiration.'},
-      {name:'HGTV',embed:'https://canale-tv.com/channel/hgtv.html',category:'Lifestyle',description:'Home design and renovation shows.'},
-      {name:'TARAF TV',embed:'https://canale-tv.com/channel/taraf.html',category:'Music',description:'Traditional and popular music.'},
-      {name:'FAVORIT TV',embed:'https://canale-tv.com/channel/favorit.html',category:'Music',description:'Romanian music and entertainment.'},
-      {name:'ETNO TV',embed:'https://canale-tv.com/channel/etno.html',category:'Music',description:'Folk and ethnic music programming.'},
-      {name:'HIT MUSIC',embed:'https://canale-tv.com/channel/hitmusic.html',category:'Music',description:'Modern chart hits and clips.'},
-      {name:'BALCAN MUSIC',embed:'https://canale-tv.com/channel/balcanmuz.html',category:'Music',description:'Balkan music selections.'},
-      {name:'UTV',embed:'https://canale-tv.com/channel/utv.html',category:'Music',description:'Music videos and pop culture.'},
-      {name:'KISS TV',embed:'https://canale-tv.com/channel/kisstv.html',category:'Music',description:'Trending hits and music videos.'},
-      {name:'MUSIC CHANNEL',embed:'https://canale-tv.com/channel/musicch.html',category:'Music',description:'Continuous music block channel.'},
-      {name:'ZU TV',embed:'https://canale-tv.com/channel/zutv.html',category:'Music',description:'Romanian and international hits.'},
-      {name:'Fish & Hunting TV',embed:'https://canale-tv.com/channel/fishy.html',category:'Lifestyle',description:'Fishing and hunting themed content.'},
-      {name:'F1lm B0X',embed:'https://canale-tv.com/channel/fbox1.html',category:'Movies',description:'International movie programming.'},
-      {name:'F1lm B0X Extra',embed:'https://canale-tv.com/channel/fbox-extra.html',category:'Movies',description:'Expanded FilmBox movie library.'},
-      {name:'F1lm B0X Premium',embed:'https://canale-tv.com/channel/fbox-premium.html',category:'Movies',description:'Premium curated films selection.'},
-      {name:'Canal 33',embed:'https://canale-tv.com/channel/canal-33.html',category:'General',description:'Romanian cultural and social programs.'},
-      {name:'Dizi',embed:'https://canale-tv.com/channel/dizy.html',category:'Entertainment',description:'Turkish drama and serial content.'}
+      {name:'1-2-3 TV (270p)',embed:'https://123tv-mx1.flex-cdn.net/index.m3u8',category:'Shop',description:'', country: 'DE'},
+      {name:'1Almere TV (720p)',embed:'https://d3472rjicrodic.cloudfront.net/nlpo/clr-nlpo/709d5260/index.m3u8',category:'General',description:'', country: 'NL'},
+      {name:'1KZN TV (576p)',embed:'https://cdn.freevisiontv.co.za/sttv/smil:1kzn.stream.smil/playlist.m3u8',category:'Entertainment;Family;General',description:'', country: 'ZA'},
+      {name:'1S News (576p)',embed:'https://mumt03.tangotv.in/1SNEWS/index.m3u8',category:'Undefined',description:'', country: ''},
+      {name:'1TV (720p)',embed:'https://tv.cdn.xsg.ge/gpb-1tv/index.m3u8',category:'General',description:'', country: 'GE'},
+      {name:'1Twente TV (1080p)',embed:'https://ms7.mx-cd.net/dtv-11/198-989148/1Twente_TV.smil/chunklist_w954512639_b4292608_slNLD.m3u8',category:'General',description:'', country: 'NL'},
+      {name:'2GB Sydney (1080p)',embed:'https://2gblive.akamaized.net/hls/live/2033805/2GB/index.m3u8',category:'News',description:'', country: 'AU'},
+      {name:'2M (1080p)',embed:'http://5.253.46.190:8000/play/a0e9/index.m3u8',category:'General',description:'', country: 'MA'},
+      {name:'2M Monde (576p)',embed:'http://5.253.46.190:8000/play/a0dt/index.m3u8',category:'General',description:'', country: 'MA'},
+      {name:'2M Monde +1 (1080p)',embed:'https://d2qh3gh0k5vp3v.cloudfront.net/v1/master/3722c60a815c199d9c0ef36c5b73da68a62b09d1/cc-n6pess5lwbghr/2M_ES.m3u8',category:'General',description:'', country: 'MA'},
+      {name:'2STV',embed:'http://69.64.57.208/2stv/playlist.m3u8',category:'Culture',description:'', country: 'SN'},
+      {name:'2TV (720p)',embed:'https://tv.cdn.xsg.ge/gpb-2tv/index.m3u8',category:'General',description:'', country: 'GE'},
+      {name:'2x2',embed:'http://31.148.48.15/2x2/index.m3u8',category:'Entertainment',description:'', country: 'RU'},
+      {name:'3ABN Canada',embed:'https://3abn.bozztv.com/3abncanada/3ABN/master.m3u8',category:'Religious',description:'', country: 'CA'},
+      {name:'3ABN Dare To Dream Network',embed:'https://3abn.bozztv.com/3abn2/d2d_live/smil:d2d_live.smil/playlist.m3u8',category:'Religious',description:'', country: 'US'},
+      {name:'3ABN English',embed:'https://3abn.bozztv.com/3abn2/3abn_live/smil:3abn_live.smil/playlist.m3u8',category:'Religious',description:'', country: 'US'},
+      {name:'3ABN French',embed:'https://3abn.bozztv.com/3abn2/Fre_live/smil:Fre_live.smil/playlist.m3u8',category:'Religious',description:'', country: 'US'},
+      {name:'3ABN International Network',embed:'https://3abn.bozztv.com/3abn2/Int_live/smil:Int_live.smil/playlist.m3u8',category:'Religious',description:'', country: 'US'},
+      {name:'3ABN Kids Network',embed:'https://3abn.bozztv.com/3abn2/Kids_live/smil:Kids_live.smil/playlist.m3u8',category:'Animation;Kids;Religious',description:'', country: 'US'},
+      {name:'3ABN Latino',embed:'https://3abn.bozztv.com/3abn2/Lat_live/smil:Lat_live.smil/playlist.m3u8',category:'Religious',description:'', country: 'US'}
     ];
 
     const appState = {
       selected: null,
       search: '',
       category: 'all',
+      country: 'all',
       favoritesOnly: false,
       pinnedOnly: false,
       favorites: new Set(JSON.parse(localStorage.getItem('iptv-favorites') || '[]')),
@@ -433,6 +354,7 @@
       list: document.getElementById('channelList'),
       search: document.getElementById('searchInput'),
       category: document.getElementById('categorySelect'),
+      country: document.getElementById('countrySelect'),
       showFav: document.getElementById('showFavorites'),
       showPin: document.getElementById('showPinned'),
       playerWrap: document.getElementById('playerWrap'),
@@ -515,6 +437,7 @@
       const q = appState.search.toLowerCase();
       return channels
         .filter(c => appState.category === 'all' || c.category === appState.category)
+        .filter(c => appState.country === 'all' || c.country === appState.country)
         .filter(c => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q))
         .filter(c => !appState.favoritesOnly || isFavorite(c.name))
         .filter(c => !appState.pinnedOnly || isPinned(c.name))
@@ -646,6 +569,17 @@
       }
     }
 
+    function initCountries() {
+      const countries = [...new Set(channels.map(c => c.country))].sort();
+      for (const country of countries) {
+        if (!country) continue;
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        els.country.append(option);
+      }
+    }
+
     els.search.addEventListener('input', (e) => {
       appState.search = e.target.value.trim();
       render();
@@ -653,6 +587,11 @@
 
     els.category.addEventListener('change', (e) => {
       appState.category = e.target.value;
+      render();
+    });
+
+    els.country.addEventListener('change', (e) => {
+      appState.country = e.target.value;
       render();
     });
 
@@ -691,6 +630,7 @@
     });
 
     initCategories();
+    initCountries();
     const initialParams = new URLSearchParams(location.hash.replace(/^#/, ''));
     const initial = getChannelBySlug(initialParams.get('channel'));
     if (initial) appState.selected = initial.name;
