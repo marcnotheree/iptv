@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="referrer" content="no-referrer">
   <title>IPTV Dark Hub - Pro Streamer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
   <style>
@@ -313,6 +312,7 @@
             </div>
           </div>
           <div class="actions">
+            <button id="showScheduleBtn" class="btn-action hidden">📅 <span>Schedule</span></button>
             <button id="pinCurrent" class="btn-action pin">📌 <span>Pin</span></button>
             <button id="favoriteCurrent" class="btn-action fav">★ <span>Fav</span></button>
             <button id="copyCurrentLink" class="btn-action">🔗 <span>Share</span></button>
@@ -321,7 +321,7 @@
 
         <div class="video-wrapper">
           <video id="videoPlayer" controls playsinline class="hidden"></video>
-          <iframe id="iframePlayer" allow="autoplay; fullscreen" referrerpolicy="no-referrer" class="hidden"></iframe>
+          <iframe id="iframePlayer" allow="autoplay; fullscreen" class="hidden"></iframe>
           
           <div id="playerOverlay" class="overlay">
             <div class="spinner"></div>
@@ -381,6 +381,7 @@
       btnPinCur: document.getElementById('pinCurrent'),
       btnFavCur: document.getElementById('favoriteCurrent'),
       btnCopyCur: document.getElementById('copyCurrentLink'),
+      btnShowSchedule: document.getElementById('showScheduleBtn'),
       toasts: document.getElementById('toastList')
     };
 
@@ -421,31 +422,112 @@
     };
 
     // --- Accurate EPG Engine ---
+    const RO_EPG_URL = 'https://raw.githubusercontent.com/globetvapp/epg/main/Romania/romania1.xml';
+    let roEpgData = null;
 
-    async function fetchEPG(name) {
+    async function fetchRoEPG() {
+      if (roEpgData) return roEpgData;
       try {
-        // Cleaning name for better matching (removing HD, SD, 4K, country tags)
+        const response = await fetch(RO_EPG_URL);
+        const text = await response.text();
+        const parser = new DOMParser();
+        roEpgData = parser.parseFromString(text, "text/xml");
+        return roEpgData;
+      } catch (e) {
+        console.error("Failed to fetch RO EPG", e);
+        return null;
+      }
+    }
+
+    function parseXmlTime(timeStr) {
+      // Format: 20260310100000 +0200
+      const Y = timeStr.substring(0, 4);
+      const M = timeStr.substring(4, 6) - 1;
+      const D = timeStr.substring(6, 8);
+      const h = timeStr.substring(8, 10);
+      const m = timeStr.substring(10, 12);
+      const s = timeStr.substring(12, 14);
+      return new Date(Y, M, D, h, m, s);
+    }
+
+    async function getRoChannelSchedule(channelName) {
+      const xml = await fetchRoEPG();
+      if (!xml) return null;
+
+      const cleanName = channelName.replace(/(HD|SD|4K|1080p|720p|RO|\[.*\]|\(.*\))/gi, '').trim().toLowerCase();
+      
+      // Try to find channel ID first
+      const channels = xml.querySelectorAll('channel');
+      let channelId = null;
+      for (const ch of channels) {
+        const displayName = ch.querySelector('display-name')?.textContent?.toLowerCase();
+        if (displayName && (displayName.includes(cleanName) || cleanName.includes(displayName))) {
+          channelId = ch.getAttribute('id');
+          break;
+        }
+      }
+
+      if (!channelId) return null;
+
+      const programs = xml.querySelectorAll(`programme[channel="${channelId}"]`);
+      const schedule = [];
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0].replace(/-/g, '');
+
+      programs.forEach(p => {
+        const start = parseXmlTime(p.getAttribute('start'));
+        const stop = parseXmlTime(p.getAttribute('stop'));
+        const title = p.querySelector('title')?.textContent;
+        const desc = p.querySelector('desc')?.textContent || '';
+
+        // Only today's programs
+        if (start.toISOString().split('T')[0] === now.toISOString().split('T')[0]) {
+          schedule.push({ start, stop, title, desc });
+        }
+      });
+
+      return schedule.sort((a, b) => a.start - b.start);
+    }
+
+    async function fetchEPG(channel) {
+      const name = channel.name;
+      const isRomanian = channel.country === 'RO' || channel.category === 'Canale TV ROMANIA Embed';
+
+      if (isRomanian) {
+        const schedule = await getRoChannelSchedule(name);
+        if (schedule && schedule.length > 0) {
+          const now = new Date();
+          const current = schedule.find(p => p.start <= now && p.stop >= now);
+          const next = schedule.find(p => p.start > now);
+          
+          if (current) {
+            const total = current.stop - current.start;
+            const elapsed = now - current.start;
+            const progress = (elapsed / total) * 100;
+            
+            return {
+              now: current.title,
+              next: next ? next.title : "End of broadcast",
+              progress: Math.min(100, Math.max(0, progress)),
+              fullSchedule: schedule
+            };
+          }
+        }
+      }
+
+      try {
         const cleanName = name.replace(/(HD|SD|4K|1080p|720p|RO|UK|US|FR|IT|DE|ES|BR|TR|\[.*\]|\(.*\))/gi, '').trim();
-        
-        // Using TVMaze as a reliable source for mainstream schedules
         const response = await fetch(`https://api.tvmaze.com/singlesearch/shows?q=${encodeURIComponent(cleanName)}&embed=episodes`);
         if (!response.ok) throw new Error('Not found');
-        
         const data = await response.json();
-        const now = new Date();
-        
-        // Find current episode based on airing schedule if available
-        // Note: For live TV, TVMaze provides data for the "latest" episodes.
-        // We'll show the show name and its latest status as a proxy for accuracy.
-        
         return {
           now: data.name,
           next: "Check local listings for specific timing",
-          progress: 50, // Default to middle for network shows
+          progress: 50,
           source: 'TVMaze Verified'
         };
       } catch (e) {
-        return null; // Silent fail, will show "Info Unavailable"
+        return null;
       }
     }
 
@@ -455,17 +537,76 @@
       els.epgNow.textContent = "Updating program data...";
       els.epgNext.textContent = "Verifying schedule...";
       
-      const data = await fetchEPG(state.selected.name);
+      const data = await fetchEPG(state.selected);
       
       if (data) {
         els.epgNow.textContent = data.now;
         els.epgNext.textContent = data.next;
         els.epgProgress.style.width = data.progress + '%';
+        state.currentSchedule = data.fullSchedule || null;
+        if (state.currentSchedule) {
+           els.epgNow.style.cursor = 'pointer';
+           els.epgNow.title = 'Click for full day schedule';
+           els.epgNow.onclick = showFullDaySchedule;
+           els.btnShowSchedule.classList.remove('hidden');
+        } else {
+           els.epgNow.style.cursor = 'default';
+           els.epgNow.onclick = null;
+           els.btnShowSchedule.classList.add('hidden');
+        }
       } else {
         els.epgNow.textContent = "Program information unavailable";
         els.epgNext.textContent = "No schedule found for this channel";
         els.epgProgress.style.width = '0%';
+        state.currentSchedule = null;
+        els.btnShowSchedule.classList.add('hidden');
       }
+    }
+
+    function showFullDaySchedule() {
+      if (!state.currentSchedule) return;
+      
+      const modal = document.createElement('div');
+      modal.className = 'overlay';
+      modal.style.zIndex = '2000';
+      modal.style.background = 'rgba(0,0,0,0.95)';
+      
+      const content = document.createElement('div');
+      content.className = 'player-container';
+      content.style.maxHeight = '80vh';
+      content.style.overflowY = 'auto';
+      content.style.padding = '20px';
+      content.style.background = 'var(--panel)';
+      content.style.borderRadius = '20px';
+      content.style.border = '1px solid var(--border)';
+      
+      content.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+          <h2 style="margin:0">${state.selected.name} - Today's Schedule</h2>
+          <button class="btn-action" id="closeSchedule">✕ Close</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          ${state.currentSchedule.map(p => `
+            <div style="padding:12px; border-radius:10px; background:${(p.start <= new Date() && p.stop >= new Date()) ? 'rgba(var(--accent-rgb), 0.15)' : 'var(--panel-2)'}; border: 1px solid ${(p.start <= new Date() && p.stop >= new Date()) ? 'var(--accent)' : 'var(--border)'}">
+              <div style="display:flex; gap:15px; align-items:center;">
+                <span style="color:var(--accent); font-weight:700; min-width:100px;">
+                  ${p.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${p.stop.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </span>
+                <div>
+                  <div style="font-weight:700; font-size:1rem;">${p.title}</div>
+                  ${p.desc ? `<div style="font-size:0.85rem; color:var(--muted); margin-top:4px;">${p.desc}</div>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+      
+      document.getElementById('closeSchedule').onclick = () => modal.remove();
+      modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
     }
 
     // --- Core UI Logic ---
@@ -621,6 +762,7 @@
     els.btnPinCur.onclick = () => { if (!state.selected) return; state.pins.has(state.selected.name) ? state.pins.delete(state.selected.name) : state.pins.add(state.selected.name); localStorage.setItem('iptv-pinned', JSON.stringify([...state.pins])); render(); play(state.selected); };
     els.btnFavCur.onclick = () => { if (!state.selected) return; state.favs.has(state.selected.name) ? state.favs.delete(state.selected.name) : state.favs.add(state.selected.name); localStorage.setItem('iptv-favorites', JSON.stringify([...state.favs])); render(); play(state.selected); };
     els.btnCopyCur.onclick = () => { if (!state.selected) return; navigator.clipboard.writeText(window.location.href); showToast("Link copied!"); };
+    els.btnShowSchedule.onclick = showFullDaySchedule;
 
     init();
   </script>
