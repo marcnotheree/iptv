@@ -423,7 +423,153 @@
 
     // --- Accurate EPG Engine ---
     const RO_EPG_URL = 'https://raw.githubusercontent.com/globetvapp/epg/main/Romania/romania1.xml';
+    const PROXY = 'https://corsproxy.io/?';
     let roEpgData = null;
+
+    const CINEMAGIA_MAP = {
+      "PROTV HD": "pro-tv",
+      "A1 HD": "antena-1",
+      "TVR1": "tvr-1",
+      "TVR2": "tvr-2",
+      "CANAL D": "kanald",
+      "CANAL D2": "kanald-2",
+      "PRIMA TV": "prima-tv",
+      "NATIONAL TV": "national-tv",
+      "TVR 3": "tvr-3",
+      "TVR INTERNATIONAL": "tvr-international",
+      "PROCINEMA": "pro-cinema",
+      "ACASA TV": "acasa-tv",
+      "ACASA GOLD": "acasa-gold",
+      "ANTENA STARS": "antena-stars",
+      "NATIONAL 24 PLUS": "national-24-plus",
+      "A3 CNN": "antena-3",
+      "ROMANIA TV": "romania-tv",
+      "REALITATEA TV": "realitatea-plus",
+      "PRIMA NEWS": "prima-news",
+      "B1 TV": "b1-tv",
+      "EURONEWS ROMANIA": "euronews",
+      "NEWS24": "digi-24",
+      "ZU TV": "zu-tv",
+      "KISS TV": "kiss-tv",
+      "UTV": "u-tv",
+      "MUSIC CHANNEL": "music-channel",
+      "HIT MUSIC": "hit-music-channel",
+      "TARAF TV": "taraf-tv",
+      "ETNO TV": "etno-tv",
+      "FAVORIT TV": "favorit-tv",
+      "HAPPY TV": "happy-channel",
+      "FILM CAFE": "film-cafe",
+      "TV 1000": "tv-1000",
+      "FlLM N0W": "digi-film",
+      "EPIC DRAMA": "epic-drama",
+      "AMC": "amc",
+      "AXN HD": "axn",
+      "AXN SPIN": "axn-spin",
+      "AXN BLACK": "axn-black",
+      "AXN WHITE": "axn-white",
+      "CINEMAX": "cinemax",
+      "CINEMAX 2": "cinemax-2",
+      "HB0": "hbo",
+      "HB0 2": "hbo-2",
+      "HB0 3": "hbo-3",
+      "DIVA": "diva",
+      "WARNER TV": "warner-tv",
+      "COMEDY CENTRAL": "comedy-central",
+      "BBC FIRST": "bbc-first",
+      "MINIMAX": "minimax",
+      "CARTOON NETWORK": "cartoon-network",
+      "DISNEY CHANNEL": "disney-channel",
+      "NICKELODEON": "nickelodeon",
+      "TEEN NICK": "teen-nick",
+      "DISNEY JR": "disney-junior",
+      "CARTOONITO": "cartoonito",
+      "NICKTOONS": "nicktoons",
+      "NICK JR": "nick-jr",
+      "JIM JAM": "jim-jam",
+      "DUCK TV": "duck-tv",
+      "DISCOVERY CH": "discovery-channel",
+      "HISTORY CHANNEL": "history",
+      "NATIONAL GEOGRAPHIC": "national-geographic",
+      "NAT GEO WILD": "nat-geo-wild",
+      "NAT GEO PEOPLE": "nat-geo-people",
+      "ID INVESTIGATION": "investigation-discovery",
+      "CRIME & INVESTIGATION": "crime-and-investigation",
+      "TLC": "tlc",
+      "BBC EARTH": "bbc-earth",
+      "VIASAT HISTORY": "viasat-history",
+      "VIASAT NATURE": "viasat-nature",
+      "VIASAT EXPLORER": "viasat-explorer",
+      "TRAVEL MIX": "travel-mix",
+      "PAPRIKA": "tv-paprika",
+      "HGTV": "hgtv",
+      "SUPERSPORT 1": "digi-sport-1",
+      "SUPERSPORT 2": "digi-sport-2",
+      "SUPERSPORT 3": "digi-sport-3",
+      "SUPERSPORT 4": "digi-sport-4",
+      "PRO ARENA": "pro-arena",
+      "TVR SPORT": "tvr-sport",
+      "PRIMA SPORT 1": "prima-sport-1",
+      "PRIMA SPORT 2": "prima-sport-2",
+      "PRIMA SPORT 3": "prima-sport-3",
+      "PRIMA SPORT 4": "prima-sport-4",
+      "PRIMA SPORT 5": "prima-sport-5",
+      "SPORT EXTRA": "sport-extra",
+      "EUR0SP0RT 1": "eurosport",
+      "EUR0SP0RT 2": "eurosport-2",
+      "Fish & Hunting TV": "pv-tv",
+    };
+
+    async function fetchCinemagiaSchedule(channelName) {
+      const slug = CINEMAGIA_MAP[channelName];
+      if (!slug) return null;
+
+      try {
+        const url = `https://m.cinemagia.ro/program-tv/${slug}/`;
+        const response = await fetch(PROXY + encodeURIComponent(url));
+        if (!response.ok) return null;
+        const html = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        const items = doc.querySelectorAll('li.program-item');
+        const schedule = [];
+        const now = new Date();
+        
+        items.forEach((item) => {
+          const timeStr = item.querySelector('.program-time')?.textContent?.trim();
+          if (!timeStr) return;
+          
+          const [h, m] = timeStr.split(':').map(Number);
+          const start = new Date(now);
+          start.setHours(h, m, 0, 0);
+          
+          // Detect day rollover
+          if (schedule.length > 0 && start < schedule[schedule.length - 1].start) {
+             start.setDate(start.getDate() + 1);
+          }
+          
+          const title = item.querySelector('.program-title')?.textContent?.trim();
+          const desc = item.querySelector('.program-description')?.textContent?.trim() || "";
+          const metadata = item.querySelector('.program-metadata')?.textContent?.trim() || "";
+          
+          schedule.push({ start, title, desc, metadata });
+        });
+        
+        // Set stop times
+        for (let i = 0; i < schedule.length - 1; i++) {
+          schedule[i].stop = schedule[i+1].start;
+        }
+        if (schedule.length > 0) {
+          const last = schedule[schedule.length - 1];
+          last.stop = new Date(last.start.getTime() + 2 * 60 * 60 * 1000);
+        }
+        
+        return schedule;
+      } catch (e) {
+        console.error("Cinemagia fetch error", e);
+        return null;
+      }
+    }
 
     async function fetchRoEPG() {
       if (roEpgData) return roEpgData;
@@ -494,22 +640,36 @@
       const isRomanian = channel.country === 'RO' || channel.category === 'Canale TV ROMANIA Embed';
 
       if (isRomanian) {
-        const schedule = await getRoChannelSchedule(name);
+        const schedule = await fetchCinemagiaSchedule(name);
         if (schedule && schedule.length > 0) {
           const now = new Date();
           const current = schedule.find(p => p.start <= now && p.stop >= now);
           const next = schedule.find(p => p.start > now);
           
           if (current) {
-            const total = current.stop - current.start;
-            const elapsed = now - current.start;
-            const progress = (elapsed / total) * 100;
-            
             return {
               now: current.title,
               next: next ? next.title : "End of broadcast",
-              progress: Math.min(100, Math.max(0, progress)),
-              fullSchedule: schedule
+              progress: Math.min(100, Math.max(0, ((now - current.start) / (current.stop - current.start)) * 100)),
+              fullSchedule: schedule,
+              source: 'Cinemagia'
+            };
+          }
+        }
+        
+        // Fallback to XMLTV if Cinemagia fails
+        const xmlSchedule = await getRoChannelSchedule(name);
+        if (xmlSchedule && xmlSchedule.length > 0) {
+          const now = new Date();
+          const current = xmlSchedule.find(p => p.start <= now && p.stop >= now);
+          const next = xmlSchedule.find(p => p.start > now);
+          if (current) {
+            return {
+              now: current.title,
+              next: next ? next.title : "End of broadcast",
+              progress: Math.min(100, Math.max(0, ((now - current.start) / (current.stop - current.start)) * 100)),
+              fullSchedule: xmlSchedule,
+              source: 'XMLTV'
             };
           }
         }
@@ -546,7 +706,7 @@
         state.currentSchedule = data.fullSchedule || null;
         if (state.currentSchedule) {
            els.epgNow.style.cursor = 'pointer';
-           els.epgNow.title = 'Click for full day schedule';
+           els.epgNow.title = `Source: ${data.source}. Click for full day schedule`;
            els.epgNow.onclick = showFullDaySchedule;
            els.btnShowSchedule.classList.remove('hidden');
         } else {
@@ -570,35 +730,42 @@
       modal.className = 'overlay';
       modal.style.zIndex = '2000';
       modal.style.background = 'rgba(0,0,0,0.95)';
+      modal.style.overflowY = 'auto';
+      modal.style.padding = '20px 10px';
       
       const content = document.createElement('div');
       content.className = 'player-container';
-      content.style.maxHeight = '80vh';
-      content.style.overflowY = 'auto';
-      content.style.padding = '20px';
+      content.style.maxWidth = '800px';
+      content.style.margin = '0 auto';
+      content.style.padding = '24px';
       content.style.background = 'var(--panel)';
-      content.style.borderRadius = '20px';
+      content.style.borderRadius = '24px';
       content.style.border = '1px solid var(--border)';
+      content.style.boxShadow = 'var(--shadow)';
       
       content.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-          <h2 style="margin:0">${state.selected.name} - Today's Schedule</h2>
-          <button class="btn-action" id="closeSchedule">✕ Close</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; position:sticky; top:0; background:var(--panel); padding:10px 0; border-bottom:1px solid var(--border); z-index:1;">
+          <h2 style="margin:0; font-size:1.4rem;">${state.selected.name} Schedule</h2>
+          <button class="btn-action" id="closeSchedule" style="padding: 8px 16px;">✕ Close</button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          ${state.currentSchedule.map(p => `
-            <div style="padding:12px; border-radius:10px; background:${(p.start <= new Date() && p.stop >= new Date()) ? 'rgba(var(--accent-rgb), 0.15)' : 'var(--panel-2)'}; border: 1px solid ${(p.start <= new Date() && p.stop >= new Date()) ? 'var(--accent)' : 'var(--border)'}">
-              <div style="display:flex; gap:15px; align-items:center;">
-                <span style="color:var(--accent); font-weight:700; min-width:100px;">
-                  ${p.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${p.stop.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                </span>
-                <div>
-                  <div style="font-weight:700; font-size:1rem;">${p.title}</div>
-                  ${p.desc ? `<div style="font-size:0.85rem; color:var(--muted); margin-top:4px;">${p.desc}</div>` : ''}
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          ${state.currentSchedule.map(p => {
+            const isNow = p.start <= new Date() && p.stop >= new Date();
+            return `
+              <div style="padding:16px; border-radius:16px; background:${isNow ? 'rgba(var(--accent-rgb), 0.1)' : 'var(--panel-2)'}; border: 1px solid ${isNow ? 'var(--accent)' : 'var(--border)'}; transition: var(--transition);">
+                <div style="display:flex; gap:20px; align-items:flex-start;">
+                  <span style="color:${isNow ? 'var(--accent)' : 'var(--muted)'}; font-weight:800; min-width:80px; font-size:0.9rem; font-variant-numeric: tabular-nums;">
+                    ${p.start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </span>
+                  <div style="flex:1;">
+                    <div style="font-weight:700; font-size:1.1rem; color: ${isNow ? '#fff' : 'var(--text)'};">${p.title}</div>
+                    ${p.metadata ? `<div style="font-size:0.75rem; color:var(--accent); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; font-weight:700;">${p.metadata}</div>` : ''}
+                    ${p.desc ? `<div style="font-size:0.9rem; color:var(--muted); margin-top:8px; line-height:1.5;">${p.desc}</div>` : ''}
+                  </div>
                 </div>
               </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
       `;
       
