@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>IPTV Dark Hub - Pro Streamer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.7/hls.min.js"></script>
+  <title>IPTV Dark Hub - Romanian Pro</title>
   <style>
     :root {
       --bg: #07090f;
@@ -35,7 +34,7 @@
 
     .app {
       display: grid;
-      grid-template-columns: 300px 1fr;
+      grid-template-columns: 280px 1fr;
       height: 100vh;
     }
 
@@ -46,231 +45,151 @@
       display: flex;
       flex-direction: column;
       z-index: 100;
-      transition: var(--transition);
     }
 
-    .sidebar-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
     .sidebar-header h1 { 
-      font-size: 1.4rem; margin: 0; font-weight: 800; 
+      font-size: 1.3rem; margin: 0; font-weight: 800; 
       background: linear-gradient(to right, #fff, var(--muted)); 
       -webkit-background-clip: text; background-clip: text; 
       -webkit-text-fill-color: transparent; 
     }
     
     .controls { padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; flex: 1; }
-    
     .filter-group { display: flex; flex-direction: column; gap: 8px; }
     .filter-label { color: var(--accent); font-weight: 800; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
 
     input, select {
-      width: 100%;
-      background: #0a0d14;
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 12px 16px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: var(--transition);
+      width: 100%; background: #0a0d14; color: var(--text); border: 1px solid var(--border);
+      padding: 12px 16px; border-radius: 12px; font-size: 0.9rem; outline: none;
     }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15); }
 
     .toggle-btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: var(--transition);
+      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--panel-2); color: var(--muted); font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
     }
     .toggle-btn.active { background: rgba(var(--accent-rgb), 0.1); border-color: var(--accent); color: var(--accent); }
 
-    /* Main Content */
+    /* Main Area */
     .main {
       padding: 0;
       overflow-y: auto;
       background: radial-gradient(circle at 50% -20%, #1a1f35 0%, var(--bg) 70%);
       scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
       display: flex;
       flex-direction: column;
     }
 
-    .content-wrapper {
-      padding: 24px 40px;
+    .content-container {
+      padding: 30px;
       width: 100%;
       max-width: 1600px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: 30px;
     }
 
-    /* Player Section */
+    /* Player & EPG Row */
     #playerSection {
       display: none;
       flex-direction: column;
       gap: 20px;
-      animation: fadeIn 0.4s ease;
+      max-height: 85vh;
     }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     .player-layout {
       display: grid;
-      grid-template-columns: 1.8fr 1fr;
-      gap: 24px;
-      align-items: start;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 30px;
+      align-items: stretch;
     }
 
-    .player-header { display: flex; flex-direction: column; gap: 12px; }
-    .player-title { font-size: 1.8rem; margin: 0; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-column { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+    .player-title { font-size: 1.8rem; margin: 0; font-weight: 800; color: #fff; }
     
-    .epg-container {
-      background: rgba(var(--accent-rgb), 0.05);
+    .video-wrapper {
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #000;
       border-radius: 20px;
-      padding: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+    #iframePlayer { width: 100%; height: 100%; display: block; border: none; }
+
+    .epg-container {
+      background: rgba(var(--accent-rgb), 0.03);
+      border-radius: 20px;
+      padding: 24px;
       border: 1px solid rgba(var(--accent-rgb), 0.1);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
       height: 100%;
     }
 
-    .epg-current { display: flex; flex-direction: column; gap: 8px; }
-    .epg-upcoming { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--border); padding-top: 16px; }
+    .epg-current { display: flex; flex-direction: column; gap: 10px; }
+    .epg-upcoming { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--border); padding-top: 16px; }
     
     .epg-value { color: #fff; font-weight: 700; font-size: 1.1rem; line-height: 1.4; }
     .progress-bar { height: 6px; background: #22293d; border-radius: 3px; width: 100%; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--accent); transition: width 1s linear; }
 
-    .upcoming-list { display: flex; flex-direction: column; gap: 8px; }
-    .upcoming-item { display: grid; grid-template-columns: 60px 1fr; gap: 12px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+    .upcoming-list { display: flex; flex-direction: column; gap: 12px; }
+    .upcoming-item { display: grid; grid-template-columns: 65px 1fr; gap: 15px; align-items: center; font-size: 0.9rem; color: var(--muted); }
     .upcoming-time { font-weight: 800; color: var(--accent); }
-    .upcoming-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+    .upcoming-title { font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    .video-wrapper {
-      position: relative;
-      aspect-ratio: 16 / 9;
-      background: #000;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-    }
-    #videoPlayer, #iframePlayer { width: 100%; height: 100%; display: block; border: none; }
-
-    .player-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+    .action-row { display: flex; gap: 10px; margin-top: 5px; }
     .action-btn {
-      padding: 10px 18px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: var(--transition);
-      font-size: 0.85rem;
+      padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--panel-2); color: #fff; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 8px; font-size: 0.8rem;
     }
-    .action-btn:hover { background: #1e2538; border-color: var(--muted); }
-    .action-btn.active.pin { border-color: var(--success); color: var(--success); }
-    .action-btn.active.fav { border-color: #ffd166; color: #ffd166; }
+    .action-btn.active.pin { color: var(--success); border-color: var(--success); }
+    .action-btn.active.fav { color: #ffd166; border-color: #ffd166; }
 
-    /* Channel Grid */
-    .section-header { 
-      font-size: 1.1rem; font-weight: 800; margin: 24px 0 16px 0; 
-      display: flex; align-items: center; gap: 12px; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 1px;
-    }
-    .section-header span { background: var(--border); height: 1px; flex: 1; }
-
-    .channel-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
+    /* Grid Layout */
+    .section-label { font-size: 1rem; font-weight: 800; margin: 20px 0 15px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
     .channel-card {
-      padding: 20px;
-      border-radius: var(--radius);
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      padding: 20px; border-radius: var(--radius); background: var(--panel-2); border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 12px;
     }
-    .channel-card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .channel-card:hover { border-color: var(--accent); transform: translateY(-4px); }
     .channel-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-    
-    .card-title { font-weight: 800; font-size: 1.1rem; margin: 0; color: #fff; line-height: 1.3; }
-    .card-tag { font-size: 0.6rem; padding: 3px 8px; border-radius: 6px; background: #1e2538; color: #a5b4fc; border: 1px solid #2d3755; font-weight: 800; }
-    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.8rem; color: var(--muted); }
+    .card-title { font-weight: 800; font-size: 1rem; margin: 0; color: #fff; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.75rem; color: var(--muted); }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-    .modal-content { width: 100%; max-width: 800px; max-height: 85vh; background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-    .modal-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .modal-body { padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal-content { width: 100%; max-width: 700px; max-height: 80vh; background: var(--panel); border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
 
-    #welcomeHero {
-      padding: 100px 40px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    #welcomeHero h2 { font-size: 3.5rem; margin: 0; font-weight: 900; }
-    #welcomeHero p { color: var(--muted); font-size: 1.2rem; max-width: 600px; }
+    #welcomeHero { padding: 80px 40px; text-align: center; }
+    #welcomeHero h2 { font-size: 3rem; margin: 0; font-weight: 900; }
 
-    .menu-toggle {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 64px;
-      height: 64px;
-      border-radius: 22px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.4);
-      z-index: 1000;
-      cursor: pointer;
-      display: none;
-      font-size: 1.5rem;
+    .menu-btn {
+      position: fixed; bottom: 24px; right: 24px; width: 60px; height: 60px; border-radius: 20px;
+      background: var(--accent); color: #fff; border: none; box-shadow: 0 10px 30px rgba(var(--accent-rgb), 0.4);
+      z-index: 1000; cursor: pointer; display: none; font-size: 1.2rem;
     }
 
     @media (max-width: 1300px) {
       .player-layout { grid-template-columns: 1fr; }
-      .epg-container { height: auto; }
+      #playerSection { max-height: none; }
     }
 
     @media (max-width: 1100px) {
       .app { grid-template-columns: 1fr; }
-      .sidebar { position: fixed; left: 0; top: 0; width: 320px; height: 100vh; transform: translateX(-100%); background: var(--panel); box-shadow: 20px 0 50px rgba(0,0,0,0.5); }
+      .sidebar { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; transform: translateX(-100%); background: var(--panel); }
       .sidebar.open { transform: translateX(0); }
-      .menu-toggle { display: flex; align-items: center; justify-content: center; }
-      .content-wrapper { padding: 20px; }
-      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+      .menu-btn { display: flex; align-items: center; justify-content: center; }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
     }
   </style>
 </head>
@@ -279,27 +198,21 @@
     <div id="drawerOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:999; opacity:0; pointer-events:none; transition:0.3s; backdrop-filter:blur(4px);"></div>
     
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <h1>Dark Hub</h1>
-      </div>
+      <div class="sidebar-header"><h1>Dark Hub Pro</h1></div>
       <div class="controls">
         <div class="filter-group">
           <label class="filter-label">Search</label>
-          <input id="searchInput" placeholder="Find a channel..." autocomplete="off" />
+          <input id="searchInput" placeholder="Find channel..." autocomplete="off" />
         </div>
         <div class="filter-group">
           <label class="filter-label">Category</label>
           <select id="categorySelect"><option value="all">All Categories</option></select>
         </div>
         <div class="filter-group">
-          <label class="filter-label">Country</label>
-          <select id="countrySelect"><option value="all">All Countries</option></select>
-        </div>
-        <div class="filter-group" style="margin-top: 10px;">
-          <label class="filter-label">Preferences</label>
+          <label class="filter-label">Filters</label>
           <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button id="toggleFavs" class="toggle-btn"><span>★ Favorites</span><span id="favCount"></span></button>
-            <button id="togglePins" class="toggle-btn"><span>📌 Pinned</span><span id="pinCount"></span></button>
+            <button id="toggleFavs" class="toggle-btn"><span>★ Favorites</span></button>
+            <button id="togglePins" class="toggle-btn"><span>📌 Pinned</span></button>
           </div>
         </div>
       </div>
@@ -307,35 +220,31 @@
 
     <main class="main" id="mainScroll">
       <div id="welcomeHero">
-        <h2>Premium Streamer</h2>
-        <p>Premium IPTV Experience. Select a Romanian channel from the grid to begin.</p>
+        <h2>Premium Romanian IPTV</h2>
+        <p>Pick a channel below to start watching.</p>
       </div>
 
-      <div class="content-wrapper">
+      <div class="content-container">
+        <!-- Player & EPG -->
         <section id="playerSection">
           <div class="player-layout">
-            <div class="player-header">
-              <h2 class="player-title" id="playerTitle">Channel Name</h2>
+            <div class="player-column">
+              <h2 class="player-title" id="playerTitle">Channel</h2>
               <div class="video-wrapper">
-                <video id="videoPlayer" controls playsinline class="hidden"></video>
-                <iframe id="iframePlayer" allow="autoplay; fullscreen" class="hidden"></iframe>
-                <div id="playerOverlay" class="overlay">
-                  <div class="spinner"></div>
-                  <p>Connecting...</p>
-                </div>
+                <iframe id="iframePlayer"></iframe>
               </div>
-              <div class="player-actions">
-                <button id="btnPin" class="action-btn pin">📌 <span>Pin</span></button>
-                <button id="btnFav" class="action-btn fav">★ <span>Favorite</span></button>
-                <button id="btnSchedule" class="action-btn">📅 <span>Full Schedule</span></button>
-                <button id="btnShare" class="action-btn">🔗 <span>Share</span></button>
+              <div class="action-row">
+                <button id="btnPin" class="action-btn pin">📌 Pin</button>
+                <button id="btnFav" class="action-btn fav">★ Favorite</button>
+                <button id="btnSchedule" class="action-btn">📅 Full Schedule</button>
+                <button id="btnShare" class="action-btn">🔗 Share</button>
               </div>
             </div>
 
             <div id="epgBox" class="epg-container hidden">
               <div class="epg-current">
                 <span class="filter-label">On Air Now</span>
-                <span class="epg-value" id="epgNow">Loading info...</span>
+                <span class="epg-value" id="epgNow">Loading...</span>
                 <div class="progress-bar"><div id="epgProgress" class="progress-fill"></div></div>
               </div>
               <div class="epg-upcoming">
@@ -346,142 +255,131 @@
           </div>
         </section>
 
-        <div id="pinnedSection" class="hidden">
-          <div class="section-header">Pinned Channels <span></span></div>
-          <div id="pinnedGrid" class="channel-grid"></div>
-        </div>
-        <div id="favoritesSection" class="hidden">
-          <div class="section-header">Your Favorites <span></span></div>
-          <div id="favoritesGrid" class="channel-grid"></div>
-        </div>
-        <div id="exploreSection">
-          <div class="section-header">Explore All Channels <span></span></div>
-          <div id="exploreGrid" class="channel-grid"></div>
-        </div>
+        <div id="pinnedSec" class="hidden"><div class="section-label">Pinned</div><div id="pinnedGrid" class="channel-grid"></div></div>
+        <div id="favSec" class="hidden"><div class="section-label">Favorites</div><div id="favGrid" class="channel-grid"></div></div>
+        <div id="exploreSec"><div class="section-label">Explore Romanian Channels</div><div id="exploreGrid" class="channel-grid"></div></div>
       </div>
     </main>
   </div>
 
-  <button class="menu-toggle" id="menuBtn">☰</button>
+  <button class="menu-btn" id="menuBtn">☰</button>
   <div id="toastList" style="position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:4000; display:flex; flex-direction:column; gap:10px;"></div>
 
-  <script src="channels.js"></script>
   <script>
     const userChannels = [
-      { name: "PROTV HD", embed: "https://canale-tv.net/channel/pr0tv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "A1 HD", embed: "https://canale-tv.net/channel/a1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TVR1", embed: "https://canale-tv.net/channel/tvr1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TVR2", embed: "https://canale-tv.net/channel/tvr2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CANAL D", embed: "https://canale-tv.net/channel/canald.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CANAL D2", embed: "https://canale-tv.net/channel/canald2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA TV", embed: "https://canale-tv.net/channel/primatv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NATIONAL TV", embed: "https://canale-tv.net/channel/nationaltv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TVR 3", embed: "https://canale-tv.net/channel/tvr3.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TVR INTERNATIONAL", embed: "https://canale-tv.net/channel/tvrinter.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PROCINEMA", embed: "https://canale-tv.net/channel/procinema.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ACASA TV", embed: "https://canale-tv.net/channel/acasatv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ACASA GOLD", embed: "https://canale-tv.net/channel/acasagold.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ANTENA STARS", embed: "https://canale-tv.net/channel/astars.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NATIONAL 24 PLUS", embed: "https://canale-tv.net/channel/national24plus.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "A3 CNN", embed: "https://canale-tv.net/channel/a3cnn.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ROMANIA TV", embed: "https://canale-tv.net/channel/romaniatv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "REALITATEA TV", embed: "https://canale-tv.net/channel/realitateatv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA NEWS", embed: "https://canale-tv.net/channel/primanews.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "B1 TV", embed: "https://canale-tv.net/channel/b1tv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "EURONEWS ROMANIA", embed: "https://canale-tv.net/channel/euronewsromnia.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NEWS24", embed: "https://canale-tv.net/channel/digi24.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CNN", embed: "https://canale-tv.net/channel/cnn.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "BBC NEWS", embed: "https://canale-tv.net/channel/bbcnews.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CBS REALITY", embed: "https://canale-tv.net/channel/cbsreality.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SUPERSPORT 1", embed: "https://canale-tv.net/channel/dgsp1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SUPERSPORT 2", embed: "https://canale-tv.net/channel/dgsp2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SUPERSPORT 3", embed: "https://canale-tv.net/channel/dgsp3.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SUPERSPORT 4", embed: "https://canale-tv.net/channel/dgsp4.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRO ARENA", embed: "https://canale-tv.net/channel/proarena.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TVR SPORT", embed: "https://canale-tv.net/channel/tvrsport.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA SPORT 1", embed: "https://canale-tv.net/channel/primasp1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA SPORT 2", embed: "https://canale-tv.net/channel/primasp2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA SPORT 3", embed: "https://canale-tv.net/channel/primasp3.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA SPORT 4", embed: "https://canale-tv.net/channel/primasp4.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PRIMA SPORT 5", embed: "https://canale-tv.net/channel/primasp5.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PPV 1", embed: "https://canale-tv.net/channel/ppv1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PPV 2", embed: "https://canale-tv.net/channel/ppv2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PPV 3", embed: "https://canale-tv.net/channel/ppv3.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SPORT EXTRA", embed: "https://canale-tv.net/channel/sportextra.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "EUR0SP0RT 1", embed: "https://canale-tv.net/channel/eurosp1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "EUR0SP0RT 2", embed: "https://canale-tv.net/channel/eurosp2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HB0", embed: "https://canale-tv.net/channel/hb.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HB0 2", embed: "https://canale-tv.net/channel/hb2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HB0 3", embed: "https://canale-tv.net/channel/hb3.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "DIVA", embed: "https://canale-tv.net/channel/diva.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HAPPY TV", embed: "https://canale-tv.net/channel/happy.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "FILM CAFE", embed: "https://canale-tv.net/channel/filmcafe.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TV 1000", embed: "https://canale-tv.net/channel/tv1000.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "FlLM N0W", embed: "https://canale-tv.net/channel/fnow.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "EPIC DRAMA", embed: "https://canale-tv.net/channel/epdrama.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "AMC", embed: "https://canale-tv.net/channel/amc.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SH0WTIME 1", embed: "https://canale-tv.net/channel/show1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "SH0WTIME 2", embed: "https://canale-tv.net/channel/show2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "AXN HD", embed: "https://canale-tv.net/channel/axn.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "AXN SPIN", embed: "https://canale-tv.net/channel/axnspin.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "AXN BLACK", embed: "https://canale-tv.net/channel/axnblack.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "AXN WHITE", embed: "https://canale-tv.net/channel/axnwhite.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CINEMAX", embed: "https://canale-tv.net/channel/cmax.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CINEMAX 2", embed: "https://canale-tv.net/channel/cmax2.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "BOLYWOOD TV", embed: "https://canale-tv.net/channel/bolywoodtv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "COMEDY CENTRAL", embed: "https://canale-tv.net/channel/ccentral.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "WARNER TV", embed: "https://canale-tv.net/channel/wornertv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "BBC FIRST", embed: "https://canale-tv.net/channel/bfirst.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "MINIMAX", embed: "https://canale-tv.net/channel/minimax.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CARTOON NETWORK", embed: "https://canale-tv.net/channel/cartoonnet.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "DISNEY CHANNEL", embed: "https://canale-tv.net/channel/disneych.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TEEN NICK", embed: "https://canale-tv.net/channel/teennick.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NICKELODEON", embed: "https://canale-tv.net/channel/nickelodeon.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "DISNEY JR", embed: "https://canale-tv.net/channel/disneyjr.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CARTOONITO", embed: "https://canale-tv.net/channel/cartonito.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NICKTOONS", embed: "https://canale-tv.net/channel/nicktoons.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NICK JR", embed: "https://canale-tv.net/channel/nickjr.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "JIM JAM", embed: "https://canale-tv.net/channel/jimjam.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "DUCK TV", embed: "https://canale-tv.net/channel/ducktv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "DISCOVERY CH", embed: "https://canale-tv.net/channel/discoverych.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HISTORY CHANNEL", embed: "https://canale-tv.net/channel/historych.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NAT GEO PEOPLE", embed: "https://canale-tv.net/channel/netgeopeople.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NATIONAL GEOGRAPHIC", embed: "https://canale-tv.net/channel/natgeo.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ID INVESTIGATION", embed: "https://canale-tv.net/channel/idinvest.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "CRIME & INVESTIGATION", embed: "https://canale-tv.net/channel/crimeinvest.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TLC", embed: "https://canale-tv.net/channel/tlc.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "NAT GEO WILD", embed: "https://canale-tv.net/channel/natgeowild.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "BBC EARTH", embed: "https://canale-tv.net/channel/bbcearth.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "VIASAT HISTORY", embed: "https://canale-tv.net/channel/viahist.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "VIASAT NATURE", embed: "https://canale-tv.net/channel/vianature.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "VIASAT EXPLORER", embed: "https://canale-tv.net/channel/viaexplorer.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TRAVEL MIX", embed: "https://canale-tv.net/channel/travelmix.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "PAPRIKA", embed: "https://canale-tv.net/channel/paprika.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HGTV", embed: "https://canale-tv.net/channel/hgtv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "TARAF TV", embed: "https://canale-tv.net/channel/taraf.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "FAVORIT TV", embed: "https://canale-tv.net/channel/favorit.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ETNO TV", embed: "https://canale-tv.net/channel/etno.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "HIT MUSIC", embed: "https://canale-tv.net/channel/hitmusic.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "BALCAN MUSIC", embed: "https://canale-tv.net/channel/balcanmuz.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "UTV", embed: "https://canale-tv.net/channel/utv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "KISS TV", embed: "https://canale-tv.net/channel/kisstv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "MUSIC CHANNEL", embed: "https://canale-tv.net/channel/musicch.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "ZU TV", embed: "https://canale-tv.net/channel/zutv.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "Fish & Hunting TV", embed: "https://canale-tv.net/channel/fishy.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "F1lm B0X", embed: "https://canale-tv.net/channel/fbox1.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "F1lm B0X Extra", embed: "https://canale-tv.net/channel/fbox-extra.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "F1lm B0X Premium", embed: "https://canale-tv.net/channel/fbox-premium.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "Canal 33", embed: "https://canale-tv.net/channel/canal-33.html", category: "Canale TV ROMANIA Embed", country: "RO" },
-      { name: "Dizi", embed: "https://canale-tv.net/channel/dizy.html", category: "Canale TV ROMANIA Embed", country: "RO" }
+      { name: "PROTV HD", embed: "https://canale-tv.net/channel/pr0tv.html", category: "Entertainment", country: "RO" },
+      { name: "A1 HD", embed: "https://canale-tv.net/channel/a1.html", category: "Entertainment", country: "RO" },
+      { name: "TVR1", embed: "https://canale-tv.net/channel/tvr1.html", category: "General", country: "RO" },
+      { name: "TVR2", embed: "https://canale-tv.net/channel/tvr2.html", category: "General", country: "RO" },
+      { name: "CANAL D", embed: "https://canale-tv.net/channel/canald.html", category: "Entertainment", country: "RO" },
+      { name: "CANAL D2", embed: "https://canale-tv.net/channel/canald2.html", category: "Entertainment", country: "RO" },
+      { name: "PRIMA TV", embed: "https://canale-tv.net/channel/primatv.html", category: "Entertainment", country: "RO" },
+      { name: "NATIONAL TV", embed: "https://canale-tv.net/channel/nationaltv.html", category: "Entertainment", country: "RO" },
+      { name: "TVR 3", embed: "https://canale-tv.net/channel/tvr3.html", category: "General", country: "RO" },
+      { name: "TVR INTERNATIONAL", embed: "https://canale-tv.net/channel/tvrinter.html", category: "General", country: "RO" },
+      { name: "PROCINEMA", embed: "https://canale-tv.net/channel/procinema.html", category: "Movies", country: "RO" },
+      { name: "ACASA TV", embed: "https://canale-tv.net/channel/acasatv.html", category: "Entertainment", country: "RO" },
+      { name: "ACASA GOLD", embed: "https://canale-tv.net/channel/acasagold.html", category: "Entertainment", country: "RO" },
+      { name: "ANTENA STARS", embed: "https://canale-tv.net/channel/astars.html", category: "Entertainment", country: "RO" },
+      { name: "NATIONAL 24 PLUS", embed: "https://canale-tv.net/channel/national24plus.html", category: "General", country: "RO" },
+      { name: "A3 CNN", embed: "https://canale-tv.net/channel/a3cnn.html", category: "News", country: "RO" },
+      { name: "ROMANIA TV", embed: "https://canale-tv.net/channel/romaniatv.html", category: "News", country: "RO" },
+      { name: "REALITATEA TV", embed: "https://canale-tv.net/channel/realitateatv.html", category: "News", country: "RO" },
+      { name: "PRIMA NEWS", embed: "https://canale-tv.net/channel/primanews.html", category: "News", country: "RO" },
+      { name: "B1 TV", embed: "https://canale-tv.net/channel/b1tv.html", category: "News", country: "RO" },
+      { name: "EURONEWS ROMANIA", embed: "https://canale-tv.net/channel/euronewsromnia.html", category: "News", country: "RO" },
+      { name: "NEWS24", embed: "https://canale-tv.net/channel/digi24.html", category: "News", country: "RO" },
+      { name: "CNN", embed: "https://canale-tv.net/channel/cnn.html", category: "News", country: "RO" },
+      { name: "BBC NEWS", embed: "https://canale-tv.net/channel/bbcnews.html", category: "News", country: "RO" },
+      { name: "CBS REALITY", embed: "https://canale-tv.net/channel/cbsreality.html", category: "Entertainment", country: "RO" },
+      { name: "SUPERSPORT 1", embed: "https://canale-tv.net/channel/dgsp1.html", category: "Sports", country: "RO" },
+      { name: "SUPERSPORT 2", embed: "https://canale-tv.net/channel/dgsp2.html", category: "Sports", country: "RO" },
+      { name: "SUPERSPORT 3", embed: "https://canale-tv.net/channel/dgsp3.html", category: "Sports", country: "RO" },
+      { name: "SUPERSPORT 4", embed: "https://canale-tv.net/channel/dgsp4.html", category: "Sports", country: "RO" },
+      { name: "PRO ARENA", embed: "https://canale-tv.net/channel/proarena.html", category: "Sports", country: "RO" },
+      { name: "TVR SPORT", embed: "https://canale-tv.net/channel/tvrsport.html", category: "Sports", country: "RO" },
+      { name: "PRIMA SPORT 1", embed: "https://canale-tv.net/channel/primasp1.html", category: "Sports", country: "RO" },
+      { name: "PRIMA SPORT 2", embed: "https://canale-tv.net/channel/primasp2.html", category: "Sports", country: "RO" },
+      { name: "PRIMA SPORT 3", embed: "https://canale-tv.net/channel/primasp3.html", category: "Sports", country: "RO" },
+      { name: "PRIMA SPORT 4", embed: "https://canale-tv.net/channel/primasp4.html", category: "Sports", country: "RO" },
+      { name: "PRIMA SPORT 5", embed: "https://canale-tv.net/channel/primasp5.html", category: "Sports", country: "RO" },
+      { name: "PPV 1", embed: "https://canale-tv.net/channel/ppv1.html", category: "Sports", country: "RO" },
+      { name: "PPV 2", embed: "https://canale-tv.net/channel/ppv2.html", category: "Sports", country: "RO" },
+      { name: "PPV 3", embed: "https://canale-tv.net/channel/ppv3.html", category: "Sports", country: "RO" },
+      { name: "SPORT EXTRA", embed: "https://canale-tv.net/channel/sportextra.html", category: "Sports", country: "RO" },
+      { name: "EUR0SP0RT 1", embed: "https://canale-tv.net/channel/eurosp1.html", category: "Sports", country: "RO" },
+      { name: "EUR0SP0RT 2", embed: "https://canale-tv.net/channel/eurosp2.html", category: "Sports", country: "RO" },
+      { name: "HB0", embed: "https://canale-tv.net/channel/hb.html", category: "Movies", country: "RO" },
+      { name: "HB0 2", embed: "https://canale-tv.net/channel/hb2.html", category: "Movies", country: "RO" },
+      { name: "HB0 3", embed: "https://canale-tv.net/channel/hb3.html", category: "Movies", country: "RO" },
+      { name: "DIVA", embed: "https://canale-tv.net/channel/diva.html", category: "Movies", country: "RO" },
+      { name: "HAPPY TV", embed: "https://canale-tv.net/channel/happy.html", category: "Entertainment", country: "RO" },
+      { name: "FILM CAFE", embed: "https://canale-tv.net/channel/filmcafe.html", category: "Movies", country: "RO" },
+      { name: "TV 1000", embed: "https://canale-tv.net/channel/tv1000.html", category: "Movies", country: "RO" },
+      { name: "FlLM N0W", embed: "https://canale-tv.net/channel/fnow.html", category: "Movies", country: "RO" },
+      { name: "EPIC DRAMA", embed: "https://canale-tv.net/channel/epdrama.html", category: "Movies", country: "RO" },
+      { name: "AMC", embed: "https://canale-tv.net/channel/amc.html", category: "Movies", country: "RO" },
+      { name: "SH0WTIME 1", embed: "https://canale-tv.net/channel/show1.html", category: "Movies", country: "RO" },
+      { name: "SH0WTIME 2", embed: "https://canale-tv.net/channel/show2.html", category: "Movies", country: "RO" },
+      { name: "AXN HD", embed: "https://canale-tv.net/channel/axn.html", category: "Movies", country: "RO" },
+      { name: "AXN SPIN", embed: "https://canale-tv.net/channel/axnspin.html", category: "Movies", country: "RO" },
+      { name: "AXN BLACK", embed: "https://canale-tv.net/channel/axnblack.html", category: "Movies", country: "RO" },
+      { name: "AXN WHITE", embed: "https://canale-tv.net/channel/axnwhite.html", category: "Movies", country: "RO" },
+      { name: "CINEMAX", embed: "https://canale-tv.net/channel/cmax.html", category: "Movies", country: "RO" },
+      { name: "CINEMAX 2", embed: "https://canale-tv.net/channel/cmax2.html", category: "Movies", country: "RO" },
+      { name: "BOLYWOOD TV", embed: "https://canale-tv.net/channel/bolywoodtv.html", category: "Movies", country: "RO" },
+      { name: "COMEDY CENTRAL", embed: "https://canale-tv.net/channel/ccentral.html", category: "Entertainment", country: "RO" },
+      { name: "WARNER TV", embed: "https://canale-tv.net/channel/wornertv.html", category: "Movies", country: "RO" },
+      { name: "BBC FIRST", embed: "https://canale-tv.net/channel/bfirst.html", category: "Movies", country: "RO" },
+      { name: "MINIMAX", embed: "https://canale-tv.net/channel/minimax.html", category: "Kids", country: "RO" },
+      { name: "CARTOON NETWORK", embed: "https://canale-tv.net/channel/cartoonnet.html", category: "Kids", country: "RO" },
+      { name: "DISNEY CHANNEL", embed: "https://canale-tv.net/channel/disneych.html", category: "Kids", country: "RO" },
+      { name: "TEEN NICK", embed: "https://canale-tv.net/channel/teennick.html", category: "Kids", country: "RO" },
+      { name: "NICKELODEON", embed: "https://canale-tv.net/channel/nickelodeon.html", category: "Kids", country: "RO" },
+      { name: "DISNEY JR", embed: "https://canale-tv.net/channel/disneyjr.html", category: "Kids", country: "RO" },
+      { name: "CARTOONITO", embed: "https://canale-tv.net/channel/cartonito.html", category: "Kids", country: "RO" },
+      { name: "NICKTOONS", embed: "https://canale-tv.net/channel/nicktoons.html", category: "Kids", country: "RO" },
+      { name: "NICK JR", embed: "https://canale-tv.net/channel/nickjr.html", category: "Kids", country: "RO" },
+      { name: "JIM JAM", embed: "https://canale-tv.net/channel/jimjam.html", category: "Kids", country: "RO" },
+      { name: "DUCK TV", embed: "https://canale-tv.net/channel/ducktv.html", category: "Kids", country: "RO" },
+      { name: "DISCOVERY CH", embed: "https://canale-tv.net/channel/discoverych.html", category: "Documentaries", country: "RO" },
+      { name: "HISTORY CHANNEL", embed: "https://canale-tv.net/channel/historych.html", category: "Documentaries", country: "RO" },
+      { name: "NAT GEO PEOPLE", embed: "https://canale-tv.net/channel/netgeopeople.html", category: "Documentaries", country: "RO" },
+      { name: "NATIONAL GEOGRAPHIC", embed: "https://canale-tv.net/channel/natgeo.html", category: "Documentaries", country: "RO" },
+      { name: "ID INVESTIGATION", embed: "https://canale-tv.net/channel/idinvest.html", category: "Documentaries", country: "RO" },
+      { name: "CRIME & INVESTIGATION", embed: "https://canale-tv.net/channel/crimeinvest.html", category: "Documentaries", country: "RO" },
+      { name: "TLC", embed: "https://canale-tv.net/channel/tlc.html", category: "Lifestyle", country: "RO" },
+      { name: "NAT GEO WILD", embed: "https://canale-tv.net/channel/natgeowild.html", category: "Documentaries", country: "RO" },
+      { name: "BBC EARTH", embed: "https://canale-tv.net/channel/bbcearth.html", category: "Documentaries", country: "RO" },
+      { name: "VIASAT HISTORY", embed: "https://canale-tv.net/channel/viahist.html", category: "Documentaries", country: "RO" },
+      { name: "VIASAT NATURE", embed: "https://canale-tv.net/channel/vianature.html", category: "Documentaries", country: "RO" },
+      { name: "VIASAT EXPLORER", embed: "https://canale-tv.net/channel/viaexplorer.html", category: "Documentaries", country: "RO" },
+      { name: "TRAVEL MIX", embed: "https://canale-tv.net/channel/travelmix.html", category: "Lifestyle", country: "RO" },
+      { name: "PAPRIKA", embed: "https://canale-tv.net/channel/paprika.html", category: "Lifestyle", country: "RO" },
+      { name: "HGTV", embed: "https://canale-tv.net/channel/hgtv.html", category: "Lifestyle", country: "RO" },
+      { name: "TARAF TV", embed: "https://canale-tv.net/channel/taraf.html", category: "Music", country: "RO" },
+      { name: "FAVORIT TV", embed: "https://canale-tv.net/channel/favorit.html", category: "Music", country: "RO" },
+      { name: "ETNO TV", embed: "https://canale-tv.net/channel/etno.html", category: "Music", country: "RO" },
+      { name: "HIT MUSIC", embed: "https://canale-tv.net/channel/hitmusic.html", category: "Music", country: "RO" },
+      { name: "BALCAN MUSIC", embed: "https://canale-tv.net/channel/balcanmuz.html", category: "Music", country: "RO" },
+      { name: "UTV", embed: "https://canale-tv.net/channel/utv.html", category: "Music", country: "RO" },
+      { name: "KISS TV", embed: "https://canale-tv.net/channel/kisstv.html", category: "Music", country: "RO" },
+      { name: "MUSIC CHANNEL", embed: "https://canale-tv.net/channel/musicch.html", category: "Music", country: "RO" },
+      { name: "ZU TV", embed: "https://canale-tv.net/channel/zutv.html", category: "Music", country: "RO" },
+      { name: "Fish & Hunting TV", embed: "https://canale-tv.net/channel/fishy.html", category: "Lifestyle", country: "RO" },
+      { name: "F1lm B0X", embed: "https://canale-tv.net/channel/fbox1.html", category: "Movies", country: "RO" },
+      { name: "F1lm B0X Extra", embed: "https://canale-tv.net/channel/fbox-extra.html", category: "Movies", country: "RO" },
+      { name: "F1lm B0X Premium", embed: "https://canale-tv.net/channel/fbox-premium.html", category: "Movies", country: "RO" },
+      { name: "Canal 33", embed: "https://canale-tv.net/channel/canal-33.html", category: "News", country: "RO" },
+      { name: "Dizi", embed: "https://canale-tv.net/channel/dizy.html", category: "Entertainment", country: "RO" }
     ];
 
     const state = {
-      all: [],
+      all: [...userChannels],
       favs: new Set(JSON.parse(localStorage.getItem('iptv-favs') || '[]')),
       pins: new Set(JSON.parse(localStorage.getItem('iptv-pins') || '[]')),
-      filters: { search: '', category: 'all', country: 'RO', onlyFavs: false, onlyPins: false },
+      filters: { search: '', category: 'all', onlyFavs: false, onlyPins: false },
       selected: null,
-      hls: null,
       epgInterval: null,
       schedule: null
     };
@@ -495,63 +393,56 @@
       welcomeHero: document.getElementById('welcomeHero'),
       search: document.getElementById('searchInput'),
       category: document.getElementById('categorySelect'),
-      country: document.getElementById('countrySelect'),
       btnFavs: document.getElementById('toggleFavs'),
       btnPins: document.getElementById('togglePins'),
-      video: document.getElementById('videoPlayer'),
       iframe: document.getElementById('iframePlayer'),
       playerTitle: document.getElementById('playerTitle'),
       epgBox: document.getElementById('epgBox'),
       epgNow: document.getElementById('epgNow'),
       epgUpcoming: document.getElementById('epgUpcomingList'),
       epgProgress: document.getElementById('epgProgress'),
-      playerOverlay: document.getElementById('playerOverlay'),
       btnPinCur: document.getElementById('btnPin'),
       btnFavCur: document.getElementById('btnFav'),
       btnSchedule: document.getElementById('btnSchedule'),
       btnShare: document.getElementById('btnShare'),
       grids: {
         pinned: document.getElementById('pinnedGrid'),
-        favs: document.getElementById('favoritesGrid'),
+        favs: document.getElementById('favGrid'),
         explore: document.getElementById('exploreGrid'),
-        sections: {
-          pinned: document.getElementById('pinnedSection'),
-          favs: document.getElementById('favoritesSection')
-        }
+        sections: { pinned: document.getElementById('pinnedSec'), favs: document.getElementById('favSec') }
       }
     };
 
-    const PROXY = 'https://corsproxy.io/?';
+    const ALL_ORIGINS = 'https://api.allorigins.win/get?url=';
     const CINEMAGIA_MAP = {
-      "PROTV HD": "pro-tv", "A1 HD": "antena-1", "TVR1": "tvr-1", "TVR2": "tvr-2",
-      "CANAL D": "kanal-d", "CANAL D2": "kanal-d2", "PRIMA TV": "prima-tv",
-      "NATIONAL TV": "national-tv", "TVR 3": "tvr-3", "PROCINEMA": "pro-cinema",
-      "ACASA TV": "acasa", "ANTENA STARS": "antena-stars", "A3 CNN": "antena-3-cnn",
-      "ROMANIA TV": "romania-tv", "REALITATEA TV": "realitatea-plus", "B1 TV": "b1-tv",
-      "NEWS24": "digi-24", "ZU TV": "zu-tv", "KISS TV": "kiss-tv", "UTV": "u-tv",
-      "SUPERSPORT 1": "digi-sport-1", "SUPERSPORT 2": "digi-sport-2", "SUPERSPORT 3": "digi-sport-3", "SUPERSPORT 4": "digi-sport-4",
-      "PRO ARENA": "pro-arena", "TVR SPORT": "tvr-sport", "PRIMA SPORT 1": "prima-sport-1", "PRIMA SPORT 2": "prima-sport-2",
-      "PRIMA SPORT 3": "prima-sport-3", "PRIMA SPORT 4": "prima-sport-4", "PRIMA SPORT 5": "prima-sport-5",
-      "HB0": "hbo", "HB0 2": "hbo-2", "HB0 3": "hbo-3", "DIVA": "diva", "HAPPY TV": "happy-channel", "FILM CAFE": "film-cafe",
-      "TV 1000": "tv-1000", "FlLM N0W": "film-now", "EPIC DRAMA": "epic-drama", "AMC": "amc"
+      "PROTV HD": "pro-tv", "A1 HD": "antena-1", "TVR1": "tvr-1", "TVR2": "tvr-2", "CANAL D": "kanal-d", "CANAL D2": "kanal-d2", "PRIMA TV": "prima-tv", "NATIONAL TV": "national-tv", "TVR 3": "tvr-3", "PROCINEMA": "pro-cinema", "ACASA TV": "acasa", "ACASA GOLD": "acasa-gold", "ANTENA STARS": "antena-stars", "ROMANIA TV": "romania-tv", "REALITATEA TV": "realitatea-plus", "B1 TV": "b1-tv", "NEWS24": "digi-24", "ZU TV": "zu-tv", "KISS TV": "kiss-tv", "UTV": "u-tv", "SUPERSPORT 1": "digi-sport-1", "SUPERSPORT 2": "digi-sport-2", "SUPERSPORT 3": "digi-sport-3", "SUPERSPORT 4": "digi-sport-4", "PRO ARENA": "pro-arena", "TVR SPORT": "tvr-sport", "PRIMA SPORT 1": "prima-sport-1", "PRIMA SPORT 2": "prima-sport-2", "PRIMA SPORT 3": "prima-sport-3", "PRIMA SPORT 4": "prima-sport-4", "PRIMA SPORT 5": "prima-sport-5", "HB0": "hbo", "HB0 2": "hbo-2", "HB0 3": "hbo-3", "DIVA": "diva", "HAPPY TV": "happy-channel", "FILM CAFE": "film-cafe", "TV 1000": "tv-1000", "FlLM N0W": "film-now", "EPIC DRAMA": "epic-drama", "AMC": "amc", "BBC NEWS": "bbc-news", "CNN": "cnn", "CBS REALITY": "cbs-reality", "BBC FIRST": "bbc-first", "BOLYWOOD TV": "bollywood-film", "COMEDY CENTRAL": "comedy-central", "WARNER TV": "warner-tv"
     };
 
     async function fetchCinemagia(channel) {
       const slug = CINEMAGIA_MAP[channel.name];
       if (!slug) return null;
       try {
-        const url = `${PROXY}${encodeURIComponent(`https://www.cinemagia.ro/program-tv/post/${slug}/`)}`;
-        const res = await fetch(url);
-        const html = await res.text();
-        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const url = `https://www.cinemagia.ro/program-tv/post/${slug}/`;
+        const res = await fetch(ALL_ORIGINS + encodeURIComponent(url));
+        const data = await res.json();
+        const doc = new DOMParser().parseFromString(data.contents, 'text/html');
         const roDate = new Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Bucharest'}).format(new Date());
         const logoCells = Array.from(doc.querySelectorAll('td.container_logo'));
-        let colIdx = logoCells.findIndex(td => td.getAttribute('data-iso-date') === roDate) % 7;
+        
+        let colIdx = logoCells.findIndex(td => td.getAttribute('data-iso-date') === roDate);
+        if (colIdx === -1) {
+           const daysRo = ["Duminică", "Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă"];
+           const dayName = daysRo[new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"})).getDay()];
+           colIdx = logoCells.findIndex(td => td.textContent.includes(dayName));
+        }
+        colIdx = colIdx % 7;
         if (colIdx < 0) colIdx = 0;
+
         const eventCells = Array.from(doc.querySelectorAll('td.container_events'));
         const schedule = [];
         const baseDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
         baseDate.setHours(0,0,0,0);
+        
         for (let i = colIdx; i < eventCells.length; i += 7) {
           const cell = eventCells[i];
           if (!cell) continue;
@@ -562,8 +453,13 @@
               const [h, m] = time.split(':').map(Number);
               const start = new Date(baseDate);
               start.setHours(h, m, 0, 0);
-              if (schedule.length > 0 && start < schedule[schedule.length-1].start) start.setDate(start.getDate()+1);
-              schedule.push({ start, title, desc: row.querySelector('.info')?.textContent?.trim() || "" });
+              if (schedule.length > 0 && start < schedule[schedule.length-1].start) {
+                 const nextDay = new Date(start);
+                 nextDay.setDate(nextDay.getDate() + 1);
+                 schedule.push({ start: nextDay, title, desc: row.querySelector('.info')?.textContent?.trim() || "" });
+              } else {
+                 schedule.push({ start, title, desc: row.querySelector('.info')?.textContent?.trim() || "" });
+              }
             }
           });
         }
@@ -594,9 +490,11 @@
             <span class="upcoming-time">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
             <span class="upcoming-title">${p.title}</span>
           </div>
-        `).join('') || '<div class="empty-msg">End of daily schedule</div>';
+        `).join('') || '<div class="empty-msg">End of schedule</div>';
       } else {
-        els.epgBox.classList.add('hidden');
+        els.epgNow.textContent = "Schedule not available";
+        els.epgUpcoming.innerHTML = "";
+        els.epgProgress.style.width = '0%';
       }
     }
 
@@ -605,32 +503,9 @@
       els.welcomeHero.style.display = 'none';
       els.playerSection.style.display = 'flex';
       els.playerTitle.textContent = channel.name;
-      els.playerOverlay.classList.remove('hidden');
-      if (state.hls) { state.hls.destroy(); state.hls = null; }
       
-      els.video.classList.add('hidden');
-      els.iframe.classList.add('hidden');
-
-      // Rule: canals-tv.net embeds MUST use iframe with NO restrictions
-      const isEmbedPage = channel.embed.includes('canale-tv.net');
-      
-      if (!isEmbedPage && channel.embed.includes('.m3u8')) {
-        els.video.classList.remove('hidden');
-        if (Hls.isSupported()) {
-          state.hls = new Hls();
-          state.hls.loadSource(channel.embed);
-          state.hls.attachMedia(els.video);
-          state.hls.on(Hls.Events.MANIFEST_PARSED, () => {
-            els.video.play().catch(e => {});
-            els.playerOverlay.classList.add('hidden');
-          });
-        }
-      } else {
-        // Embed Directly - NO Referrer Meta allowed, NO Sandbox allowed
-        els.iframe.classList.remove('hidden');
-        els.iframe.src = channel.embed;
-        setTimeout(() => els.playerOverlay.classList.add('hidden'), 2500);
-      }
+      // PURE EMBED: NO sandbox, NO controls restrictions, NO overlay
+      els.iframe.src = channel.embed;
 
       els.btnPinCur.classList.toggle('active', state.pins.has(channel.name));
       els.btnFavCur.classList.toggle('active', state.favs.has(channel.name));
@@ -639,9 +514,6 @@
       state.epgInterval = setInterval(updateEPG, 60000);
       render();
       els.main.scrollTo({ top: 0, behavior: 'smooth' });
-      
-      // Update share slug
-      const slug = channel.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       history.replaceState(null, '', `?ch=${encodeURIComponent(channel.name)}`);
     }
 
@@ -649,30 +521,14 @@
       if (!state.schedule) return;
       const overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
-      overlay.innerHTML = `
-        <div class="modal-content">
-          <div class="modal-header">
-            <h2 style="margin:0">${state.selected.name} - Today</h2>
-            <button class="action-btn" onclick="this.closest('.modal-overlay').remove()">✕ Close</button>
-          </div>
-          <div class="modal-body">
-            ${state.schedule.map(p => {
-              const isNow = p.start <= new Date() && (p.stop ? p.stop >= new Date() : true);
-              return `
-                <div style="padding:16px; border-radius:12px; background:${isNow ? 'rgba(var(--accent-rgb), 0.1)' : 'var(--panel-2)'}; border: 1px solid ${isNow ? 'var(--accent)' : 'var(--border)'};">
-                  <div style="display:flex; gap:16px; align-items:start;">
-                    <b style="color:var(--accent); min-width:60px;">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</b>
-                    <div>
-                      <div style="font-weight:700; color:#fff;">${p.title}</div>
-                      ${p.desc ? `<div style="font-size:0.85rem; color:var(--muted); margin-top:4px;">${p.desc}</div>` : ''}
-                    </div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      `;
+      overlay.innerHTML = `<div class="modal-content"><div class="modal-header"><h2 style="margin:0; color:#fff;">${state.selected.name}</h2><button class="action-btn" onclick="this.closest('.modal-overlay').remove()">✕ Close</button></div><div class="modal-body">` + 
+        state.schedule.map(p => `
+          <div style="padding:16px; border-radius:12px; background:var(--panel-2); border: 1px solid var(--border);">
+            <div style="display:flex; gap:16px;">
+              <b style="color:var(--accent); min-width:60px;">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</b>
+              <div><div style="font-weight:700; color:#fff;">${p.title}</div><div style="font-size:0.85rem; color:var(--muted);">${p.desc}</div></div>
+            </div>
+          </div>`).join('') + `</div></div>`;
       document.body.appendChild(overlay);
       overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
     }
@@ -682,10 +538,9 @@
       const filtered = state.all.filter(c => {
         const matchesSearch = c.name.toLowerCase().includes(q);
         const matchesCat = state.filters.category === 'all' || c.category === state.filters.category;
-        const matchesCountry = state.filters.country === 'all' || c.country === state.filters.country;
         const matchesFavs = !state.filters.onlyFavs || state.favs.has(c.name);
         const matchesPins = !state.filters.onlyPins || state.pins.has(c.name);
-        return matchesSearch && matchesCat && matchesCountry && matchesFavs && matchesPins;
+        return matchesSearch && matchesCat && matchesFavs && matchesPins;
       });
 
       const pinned = filtered.filter(c => state.pins.has(c.name));
@@ -693,108 +548,38 @@
       const others = filtered.filter(c => !state.pins.has(c.name) && !state.favs.has(c.name));
 
       const drawGrid = (container, list) => {
-        container.innerHTML = list.length ? list.map(c => `
+        container.innerHTML = list.map(c => `
           <div class="channel-card ${state.selected?.name === c.name ? 'active' : ''}" onclick="playByName('${c.name.replace(/'/g, "\\'")}')">
-            <div class="card-top">
-              <h3 class="card-title">${c.name}</h3>
-              <span class="card-tag">${c.category.split(' ')[0]}</span>
-            </div>
-            <div class="card-footer">
-              <span>${c.country === 'RO' ? 'Romania 🇷🇴' : (c.country || 'International')}</span>
-              <div style="display:flex; gap:6px;">
-                ${state.pins.has(c.name) ? '<span>📌</span>' : ''}
-                ${state.favs.has(c.name) ? '<span>★</span>' : ''}
-              </div>
-            </div>
-          </div>
-        `).join('') : '<div class="empty-msg">No channels found</div>';
+            <h3 class="card-title">${c.name}</h3>
+            <div class="card-meta"><span>${c.category}</span><div style="display:flex; gap:6px;">${state.pins.has(c.name)?'📌':''}${state.favs.has(c.name)?'★':''}</div></div>
+          </div>`).join('') || '<div class="empty-msg">No channels found</div>';
       };
 
       els.grids.sections.pinned.classList.toggle('hidden', !pinned.length);
       els.grids.sections.favs.classList.toggle('hidden', !favs.length);
-      drawGrid(els.grids.pinned, pinned);
-      drawGrid(els.grids.favs, favs);
-      drawGrid(els.grids.explore, others);
+      drawGrid(els.grids.pinned, pinned); drawGrid(els.grids.favs, favs); drawGrid(els.grids.explore, others);
     }
 
-    window.playByName = (name) => {
-      const c = state.all.find(x => x.name === name);
-      if (c) play(c);
-    };
+    window.playByName = (n) => { const c = state.all.find(x => x.name === n); if (c) play(c); };
 
-    const M3U_URL_INTL = 'https://iptv-org.github.io/iptv/index.m3u';
-
-    async function init() {
-      state.all = userChannels.map(c => ({...c, isUser: true}));
+    function init() {
+      const cats = ['all', ...new Set(state.all.map(c => c.category))].sort();
+      els.category.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
       
-      fetch(M3U_URL_INTL).then(r => r.text()).then(text => {
-        const lines = text.split('\n');
-        const extra = [];
-        for(let i=0; i<lines.length; i++) {
-          if (lines[i].startsWith('#EXTINF:')) {
-            const name = lines[i].match(/,(.+)$/)?.[1]?.trim();
-            const url = lines[i+1]?.trim();
-            if (name && url && !url.startsWith('#')) {
-              extra.push({ 
-                name, embed: url, isUser: false,
-                category: lines[i].match(/group-title="([^"]+)"/)?.[1] || 'External', 
-                country: lines[i].match(/tvg-country="([^"]+)"/)?.[1] || 'INTL' 
-              });
-              i++;
-            }
-          }
-        }
-        state.all = [...state.all, ...extra];
-        const cats = ['all', ...new Set(state.all.map(c => c.category))].sort();
-        els.category.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-        const countries = ['all', ...new Set(state.all.map(c => c.country))].sort();
-        els.country.innerHTML = countries.map(c => `<option value="${c}" ${c==='RO'?'selected':''}>${c==='all'?'All Countries':c}</option>`).join('');
-        
-        // Deep Link Check
-        const params = new URLSearchParams(window.location.search);
-        const startCh = params.get('ch');
-        if (startCh) {
-          const c = state.all.find(x => x.name === startCh);
-          if (c) play(c);
-        }
-        
-        render();
-      });
-
+      const startCh = new URLSearchParams(window.location.search).get('ch');
+      if (startCh) { const c = state.all.find(x => x.name === startCh); if (c) play(c); }
+      
+      render();
       els.search.oninput = (e) => { state.filters.search = e.target.value; render(); };
       els.category.onchange = (e) => { state.filters.category = e.target.value; render(); };
-      els.country.onchange = (e) => { state.filters.country = e.target.value; render(); };
       els.btnFavs.onclick = () => { state.filters.onlyFavs = !state.filters.onlyFavs; els.btnFavs.classList.toggle('active'); render(); };
       els.btnPins.onclick = () => { state.filters.onlyPins = !state.filters.onlyPins; els.btnPins.classList.toggle('active'); render(); };
       els.menuBtn.onclick = () => { els.sidebar.classList.add('open'); els.overlay.style.opacity = '1'; els.overlay.style.pointerEvents = 'auto'; };
       els.overlay.onclick = () => { els.sidebar.classList.remove('open'); els.overlay.style.opacity = '0'; els.overlay.style.pointerEvents = 'none'; };
       els.btnSchedule.onclick = showFullSchedule;
-
-      els.btnPinCur.onclick = () => {
-        if (!state.selected) return;
-        state.pins.has(state.selected.name) ? state.pins.delete(state.selected.name) : state.pins.add(state.selected.name);
-        localStorage.setItem('iptv-pins', JSON.stringify([...state.pins]));
-        els.btnPinCur.classList.toggle('active', state.pins.has(state.selected.name));
-        render();
-      };
-
-      els.btnFavCur.onclick = () => {
-        if (!state.selected) return;
-        state.favs.has(state.selected.name) ? state.favs.delete(state.selected.name) : state.favs.add(state.selected.name);
-        localStorage.setItem('iptv-favs', JSON.stringify([...state.favs]));
-        els.btnFavCur.classList.toggle('active', state.favs.has(state.selected.name));
-        render();
-      };
-
-      els.btnShare.onclick = () => {
-        const url = window.location.origin + window.location.pathname + "?ch=" + encodeURIComponent(state.selected.name);
-        navigator.clipboard.writeText(url);
-        const t = document.createElement('div');
-        t.style = "background:var(--panel-2); color:#fff; padding:12px 24px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow); font-weight:600;";
-        t.textContent = "Share link copied!";
-        document.getElementById('toastList').appendChild(t);
-        setTimeout(() => t.remove(), 3000);
-      };
+      els.btnPinCur.onclick = () => { if(!state.selected) return; state.pins.has(state.selected.name) ? state.pins.delete(state.selected.name) : state.pins.add(state.selected.name); localStorage.setItem('iptv-pins', JSON.stringify([...state.pins])); render(); };
+      els.btnFavCur.onclick = () => { if(!state.selected) return; state.favs.has(state.selected.name) ? state.favs.delete(state.selected.name) : state.favs.add(state.selected.name); localStorage.setItem('iptv-favs', JSON.stringify([...state.favs])); render(); };
+      els.btnShare.onclick = () => { const url = window.location.origin + window.location.pathname + "?ch=" + encodeURIComponent(state.selected.name); navigator.clipboard.writeText(url); alert("Link copied!"); };
     }
     init();
   </script>
