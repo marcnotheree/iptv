@@ -429,7 +429,11 @@
       "PROTV HD": "pro-tv", "A1 HD": "antena-1", "TVR1": "tvr-1", "TVR2": "tvr-2", "CANAL D": "kanal-d", "CANAL D2": "kanal-d2", "PRIMA TV": "prima-tv", "NATIONAL TV": "national-tv", "TVR 3": "tvr-3", "TVR INTERNATIONAL": "tvr-international", "PROCINEMA": "pro-cinema", "ACASA TV": "acasa", "ACASA GOLD": "acasa-gold", "ANTENA STARS": "antena-stars", "ROMANIA TV": "romania-tv", "REALITATEA TV": "realitatea-plus", "B1 TV": "b1-tv", "NEWS24": "digi-24", "ZU TV": "zu-tv", "KISS TV": "kiss-tv", "UTV": "u-tv", "SUPERSPORT 1": "digi-sport-1", "SUPERSPORT 2": "digi-sport-2", "SUPERSPORT 3": "digi-sport-3", "SUPERSPORT 4": "digi-sport-4", "PRO ARENA": "pro-arena", "TVR SPORT": "tvr-sport", "PRIMA SPORT 1": "prima-sport-1", "PRIMA SPORT 2": "prima-sport-2", "PRIMA SPORT 3": "prima-sport-3", "PRIMA SPORT 4": "prima-sport-4", "PRIMA SPORT 5": "prima-sport-5", "HB0": "hbo", "HB0 2": "hbo-2", "HB0 3": "hbo-3", "DIVA": "diva", "HAPPY TV": "happy-channel", "FILM CAFE": "film-cafe", "TV 1000": "tv-1000", "FlLM N0W": "film-now", "EPIC DRAMA": "epic-drama", "AMC": "amc", "BBC NEWS": "bbc-news", "CNN": "cnn", "CBS REALITY": "cbs-reality", "BBC FIRST": "bbc-first", "BOLYWOOD TV": "bollywood-film", "COMEDY CENTRAL": "comedy-central", "WARNER TV": "warner-tv", "MINIMAX": "minimax", "CARTOON NETWORK": "cartoon-network", "DISNEY CHANNEL": "disney-channel", "TEEN NICK": "teen-nick", "NICKELODEON": "nickelodeon", "DISNEY JR": "disney-junior", "CARTOONITO": "cartoonito", "NICKTOONS": "nicktoons", "NICK JR": "nick-jr", "JIM JAM": "jimjam", "DUCK TV": "duck-tv", "DISCOVERY CH": "discovery-channel", "HISTORY CHANNEL": "history", "NAT GEO PEOPLE": "nat-geo-people", "NATIONAL GEOGRAPHIC": "national-geographic", "ID INVESTIGATION": "id-investigation-discovery", "CRIME & INVESTIGATION": "crime-investigation", "TLC": "tlc", "NAT GEO WILD": "national-geographic-wild", "BBC EARTH": "bbc-earth", "VIASAT HISTORY": "viasat-history", "VIASAT NATURE": "viasat-nature", "VIASAT EXPLORER": "viasat-explore", "TRAVEL MIX": "travel-mix", "PAPRIKA": "tv-paprika", "HGTV": "hgtv", "TARAF TV": "taraf-tv", "FAVORIT TV": "favorit", "ETNO TV": "etno-tv", "HIT MUSIC": "hit-music", "MUSIC CHANNEL": "music-channel", "Fish & Hunting TV": "the-fishing-and-hunting-channel", "F1lm B0X": "filmbox", "F1lm B0X Extra": "filmbox-extra-hd", "F1lm B0X Premium": "filmbox-premium", "Canal 33": "canal-33", "Dizi": "dizi"
     };
 
-    const ALL_ORIGINS = 'https://corsproxy.io/?';
+    const PROXIES = [
+      'https://api.allorigins.win/get?url=',
+      'https://api.codetabs.com/v1/proxy?url='
+    ];
+
     const state = {
       all: [...userChannels],
       favs: new Set(JSON.parse(localStorage.getItem('iptv-favs') || '[]')),
@@ -437,8 +441,9 @@
       view: 'home',
       filters: { search: '', category: 'all', onlyFavs: false, onlyPins: false },
       selected: null,
-      scheduleCache: {},
-      epgInterval: null
+      scheduleCache: JSON.parse(localStorage.getItem('iptv-epg-cache-v4') || '{}'),
+      epgInterval: null,
+      proxyIdx: 0
     };
 
     const els = {
@@ -473,51 +478,70 @@
     async function fetchEPG(channel) {
       const slug = CINEMAGIA_MAP[channel.name];
       if (!slug) return null;
-      if (state.scheduleCache[slug]) return state.scheduleCache[slug];
+      
+      const roTime = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
+      const cacheKey = `${slug}_${roTime.toDateString()}_${roTime.getHours() < 5 ? 'early' : 'day'}`;
+      
+      if (state.scheduleCache[cacheKey]) {
+        return state.scheduleCache[cacheKey].map(p => ({ ...p, start: new Date(p.start) }));
+      }
 
-      try {
-        const url = `https://m.cinemagia.ro/program-tv/${slug}/`;
-        const res = await fetch(ALL_ORIGINS + encodeURIComponent(url));
-        if (!res.ok) throw new Error("Network Error");
-        const html = await res.text();
-        
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        const schedule = [];
-        const baseDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
-        baseDate.setHours(0,0,0,0);
+      // If between midnight and 5 AM, fetch yesterday's schedule to get late-night programs
+      const suffix = roTime.getHours() < 5 ? 'ieri/' : '';
+      const url = `https://www.cinemagia.ro/program-tv/${slug}/${suffix}`;
+      
+      for (let i = 0; i < PROXIES.length; i++) {
+        try {
+          const res = await fetch(PROXIES[i] + encodeURIComponent(url), { signal: AbortSignal.timeout(10000) });
+          if (!res.ok) continue;
 
-        const timeRegex = /\d{1,2}:\d{2}/;
-        const listItems = doc.querySelectorAll('li');
-        
-        listItems.forEach(li => {
-          const text = li.innerText || "";
-          const match = text.match(timeRegex);
-          if (match) {
-            const time = match[0];
-            let title = li.querySelector('.title')?.textContent?.trim() 
-                     || li.querySelector('a')?.textContent?.replace(time, "").trim()
-                     || text.replace(time, "").split("\n")[0].trim();
-            
-            if (time && title && title.length > 1) {
-              const [h, m] = time.split(':').map(Number);
-              const start = new Date(baseDate);
-              start.setHours(h, m, 0, 0);
+          let html = "";
+          if (PROXIES[i].includes("/get?")) {
+            const json = await res.json();
+            html = json.contents;
+          } else {
+            html = await res.text();
+          }
+
+          if (!html || html.length < 1000) continue;
+
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const schedule = [];
+          const baseDate = new Date(roTime);
+          baseDate.setHours(0,0,0,0);
+          if (roTime.getHours() < 5) baseDate.setDate(baseDate.getDate() - 1);
+
+          // ULTRA-ROBUST TIME-BASED SCANNER
+          const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+          let node;
+          while (node = walker.nextNode()) {
+            const text = node.textContent.trim();
+            const timeMatch = text.match(/^(\d{1,2}:\d{2})$/);
+            if (timeMatch) {
+              const time = timeMatch[1];
+              // Title is usually the next text node or child of next element
+              let title = "";
+              let next = node.parentElement.nextElementSibling;
+              if (next) title = next.textContent.trim().split('\n')[0];
               
-              if (schedule.length > 0 && start < schedule[schedule.length-1].start) {
-                start.setDate(start.getDate() + 1);
+              if (title.length > 1) {
+                const [h, m] = time.split(':').map(Number);
+                let start = new Date(baseDate);
+                start.setHours(h, m, 0, 0);
+                if (schedule.length > 0 && start < schedule[schedule.length-1].start) start.setDate(start.getDate() + 1);
+                schedule.push({ start, title });
               }
-              schedule.push({ start, title });
             }
           }
-        });
 
-        const sorted = schedule.sort((a,b) => a.start - b.start);
-        if (sorted.length > 0) state.scheduleCache[slug] = sorted;
-        return sorted;
-      } catch(e) { 
-        console.error("EPG Error for " + channel.name, e);
-        return null; 
+          if (schedule.length > 3) {
+            state.scheduleCache[cacheKey] = schedule;
+            localStorage.setItem('iptv-epg-cache-v4', JSON.stringify(state.scheduleCache));
+            return schedule;
+          }
+        } catch (e) { console.warn(`Proxy ${i} failed`); }
       }
+      return null;
     }
 
     function getNowAndNext(schedule) {
@@ -534,9 +558,7 @@
       const current = schedule[currentIdx];
       const next = schedule[currentIdx+1];
       let progress = 0;
-      if (next) {
-        progress = ((roNow - current.start) / (next.start - current.start)) * 100;
-      }
+      if (next) progress = ((roNow - current.start) / (next.start - current.start)) * 100;
       return { current, next, progress: Math.min(100, Math.max(0, progress)) };
     }
 
@@ -557,14 +579,11 @@
       els.playerSection.classList.remove('hidden');
       els.playerTitle.textContent = channel.name;
       els.iframe.src = channel.embed;
-      
       document.getElementById('btnPinCur').classList.toggle('active', state.pins.has(channel.name));
       document.getElementById('btnFavCur').classList.toggle('active', state.favs.has(channel.name));
-
       updateEPG();
       clearInterval(state.epgInterval);
       state.epgInterval = setInterval(updateEPG, 30000);
-      
       render();
       switchView('home');
     }
@@ -575,7 +594,6 @@
       els.epgNow.textContent = "Loading schedule...";
       els.epgProgress.style.width = '0%';
       els.epgUpcoming.innerHTML = '<div class="skeleton" style="height:50px; margin-bottom:10px;"></div><div class="skeleton" style="height:50px;"></div>';
-      
       const schedule = await fetchEPG(state.selected);
       if (schedule) {
         const data = getNowAndNext(schedule);
@@ -584,19 +602,14 @@
           els.epgProgress.style.width = data.progress + '%';
           const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
           const upcoming = schedule.filter(p => p.start > roNow).slice(0, 3);
-          els.epgUpcoming.innerHTML = upcoming.map(p => `
-            <div class="upcoming-item">
-              <span class="upcoming-time">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-              <span class="upcoming-title">${p.title}</span>
-            </div>
-          `).join('') || '<div style="color:var(--muted); font-size:0.8rem;">End of schedule</div>';
+          els.epgUpcoming.innerHTML = upcoming.map(p => `<div class="upcoming-item"><span class="upcoming-time">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span><span class="upcoming-title">${p.title}</span></div>`).join('') || '<div style="color:var(--muted); font-size:0.8rem;">End of schedule</div>';
         } else if (data && data.next) {
           els.epgNow.textContent = "Starts at " + data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
           els.epgProgress.style.width = '0%';
           els.epgUpcoming.innerHTML = `<div class="upcoming-item"><span class="upcoming-time">${data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span><span class="upcoming-title">${data.next.title}</span></div>`;
         }
       } else {
-        els.epgNow.textContent = "Schedule Unavailable";
+        els.epgNow.innerHTML = '<span style="color:var(--danger)">EPG Temporarily Restricted</span> <button onclick="updateEPG()" style="background:none; border:none; color:var(--accent); cursor:pointer; font-weight:bold; font-size:0.8rem;">[Retry]</button>';
         els.epgUpcoming.innerHTML = "";
         els.epgProgress.style.width = '0%';
       }
@@ -608,54 +621,29 @@
         els.grids.compare.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 100px 20px; color: var(--muted); border: 2px dashed var(--border); border-radius: 20px;"><h3>No monitored channels</h3><p>Pin or Favorite channels from the Home Explorer to monitor them here.</p></div>';
         return;
       }
-
-      els.grids.compare.innerHTML = targets.map(c => `
-        <div class="compare-card skeleton" id="comp-${CINEMAGIA_MAP[c.name] || Math.random().toString(36).substr(2, 9)}">
-          <div class="compare-header"><span class="compare-name">${c.name}</span></div>
-          <div style="height: 100px;"></div>
-        </div>
-      `).join('');
-
-      for (const channel of targets) {
+      els.grids.compare.innerHTML = targets.map(c => `<div class="compare-card skeleton" id="comp-${CINEMAGIA_MAP[c.name] || Math.random().toString(36).substr(2, 9)}"><div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="height: 100px;"></div></div>`).join('');
+      
+      // Parallel loading for high speed
+      targets.forEach(async (channel) => {
         const schedule = await fetchEPG(channel);
         const slug = CINEMAGIA_MAP[channel.name];
         const card = document.querySelector(`[id^="comp-${slug}"]`);
-        if (!card) continue;
+        if (!card) return;
         card.classList.remove('skeleton');
         card.onclick = () => play(channel);
-
         if (schedule) {
           const data = getNowAndNext(schedule);
           if (data && data.current) {
-            card.innerHTML = `
-              <div class="compare-header">
-                <span class="compare-name">${channel.name}</span>
-                <div class="compare-live-dot"></div>
-              </div>
-              <div class="epg-current">
-                <span class="filter-label" style="font-size:0.6rem;">Now Playing (${data.current.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})})</span>
-                <span class="epg-value" style="font-size: 1rem; color: var(--accent);">${data.current.title}</span>
-                <div class="progress-bar"><div class="progress-fill" style="width: ${data.progress}%"></div></div>
-              </div>
-              ${data.next ? `
-                <div class="upcoming-item" style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px;">
-                  <span class="upcoming-time">${data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                  <span class="upcoming-title" style="font-size: 0.85rem;">${data.next.title}</span>
-                </div>` : ''}
-            `;
+            card.innerHTML = `<div class="compare-header"><span class="compare-name">${channel.name}</span><div class="compare-live-dot"></div></div><div class="epg-current"><span class="filter-label" style="font-size:0.6rem;">Now Playing (${data.current.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})})</span><span class="epg-value" style="font-size: 1rem; color: var(--accent);">${data.current.title}</span><div class="progress-bar"><div class="progress-fill" style="width: ${data.progress}%"></div></div></div>${data.next ? `<div class="upcoming-item" style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px;"><span class="upcoming-time">${data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span><span class="upcoming-title" style="font-size: 0.85rem;">${data.next.title}</span></div>` : ''}`;
           } else if (data && data.next) {
-             card.innerHTML = `
-              <div class="compare-header"><span class="compare-name">${channel.name}</span></div>
-              <div style="padding:10px 0; color:var(--accent); font-weight:700;">Upcoming: ${data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-              <div style="font-size:0.9rem;">${data.next.title}</div>
-             `;
+             card.innerHTML = `<div class="compare-header"><span class="compare-name">${channel.name}</span></div><div style="padding:10px 0; color:var(--accent); font-weight:700;">Upcoming: ${data.next.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div><div style="font-size:0.9rem;">${data.next.title}</div>`;
           } else {
              card.innerHTML = `<div class="compare-header"><span class="compare-name">${channel.name}</span></div><div style="padding:20px; color:var(--muted); font-size:0.9rem;">No active program found</div>`;
           }
         } else {
-          card.innerHTML = `<div class="compare-header"><span class="compare-name">${channel.name}</span></div><div style="padding:20px; color:var(--danger); font-size:0.9rem;">EPG Source Unreachable</div>`;
+          card.innerHTML = `<div class="compare-header"><span class="compare-name">${channel.name}</span></div><div style="padding:20px; color:var(--danger); font-size:0.9rem;">EPG Unavailable</div>`;
         }
-      }
+      });
     }
 
     function render() {
@@ -667,19 +655,12 @@
         const mp = !state.filters.onlyPins || state.pins.has(c.name);
         return ms && mc && mf && mp;
       });
-
       const pinned = filtered.filter(c => state.pins.has(c.name));
       const favs = filtered.filter(c => state.favs.has(c.name) && !state.pins.has(c.name));
       const others = filtered.filter(c => !state.pins.has(c.name) && !state.favs.has(c.name));
-
       const drawGrid = (container, list) => {
-        container.innerHTML = list.map(c => `
-          <div class="channel-card ${state.selected?.name === c.name ? 'active' : ''}" onclick="window.playByName('${c.name.replace(/'/g, "\\'")}')">
-            <h3 class="card-title">${c.name}</h3>
-            <div class="card-meta"><span>${c.category}</span><div style="display:flex; gap:6px;">${state.pins.has(c.name)?'📌':''}${state.favs.has(c.name)?'★':''}</div></div>
-          </div>`).join('') || (q ? '<div style="padding:20px; color:var(--muted);">No matches</div>' : '');
+        container.innerHTML = list.map(c => `<div class="channel-card ${state.selected?.name === c.name ? 'active' : ''}" onclick="window.playByName('${c.name.replace(/'/g, "\\'")}')"><h3 class="card-title">${c.name}</h3><div class="card-meta"><span>${c.category}</span><div style="display:flex; gap:6px;">${state.pins.has(c.name)?'📌':''}${state.favs.has(c.name)?'★':''}</div></div></div>`).join('') || (q ? '<div style="padding:20px; color:var(--muted);">No matches</div>' : '');
       };
-
       els.grids.sections.pinned.classList.toggle('hidden', !pinned.length);
       els.grids.sections.favs.classList.toggle('hidden', !favs.length);
       drawGrid(els.grids.pinned, pinned); drawGrid(els.grids.favs, favs); drawGrid(els.grids.explore, others);
@@ -694,12 +675,9 @@
     function init() {
       const cats = ['all', ...new Set(state.all.map(c => c.category))].sort();
       els.category.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
-      
       const startCh = new URLSearchParams(window.location.search).get('ch');
       if (startCh) { const c = state.all.find(x => x.name === startCh); if (c) play(c); }
-      
       render();
-
       els.navs.home.onclick = () => switchView('home');
       els.navs.compare.onclick = () => switchView('compare');
       els.search.oninput = (e) => { state.filters.search = e.target.value; render(); };
@@ -708,34 +686,18 @@
       els.btnPins.onclick = () => { state.filters.onlyPins = !state.filters.onlyPins; els.btnPins.classList.toggle('active'); render(); };
       els.menuBtn.onclick = openSidebar;
       els.overlay.onclick = closeSidebar;
-      
-      document.getElementById('refreshCompare').onclick = () => { state.scheduleCache = {}; renderCompare(); };
+      document.getElementById('refreshCompare').onclick = () => { state.scheduleCache = {}; localStorage.removeItem('iptv-epg-cache-v4'); renderCompare(); };
       document.getElementById('btnSchedule').onclick = () => {
         if (!state.selected) return;
         fetchEPG(state.selected).then(sch => {
           if (!sch) { alert("Schedule unavailable."); return; }
           const ov = document.createElement('div');
           ov.className = 'modal-overlay';
-          ov.innerHTML = `
-            <div class="modal-content">
-              <div class="modal-header">
-                <h2 style="margin:0; color:#fff;">${state.selected.name} Full Schedule</h2>
-                <button class="nav-btn" style="width:auto; padding:8px 15px;" onclick="this.closest('.modal-overlay').remove()">✕</button>
-              </div>
-              <div class="modal-body">
-                ${sch.map(p => `
-                  <div style="padding:15px; border-radius:12px; background:var(--panel-2); border: 1px solid var(--border); display: flex; gap: 20px;">
-                    <b style="color:var(--accent); min-width: 65px;">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</b>
-                    <span style="font-weight:700;">${p.title}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>`;
+          ov.innerHTML = `<div class="modal-content"><div class="modal-header"><h2 style="margin:0; color:#fff;">${state.selected.name} Full Schedule</h2><button class="nav-btn" style="width:auto; padding:8px 15px;" onclick="this.closest('.modal-overlay').remove()">✕</button></div><div class="modal-body">${sch.map(p => `<div style="padding:15px; border-radius:12px; background:var(--panel-2); border: 1px solid var(--border); display: flex; gap: 20px;"><b style="color:var(--accent); min-width: 65px;">${p.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</b><span style="font-weight:700;">${p.title}</span></div>`).join('')}</div></div>`;
           document.body.appendChild(ov);
           ov.onclick = (e) => { if(e.target === ov) ov.remove(); };
         });
       };
-
       document.getElementById('btnPinCur').onclick = () => {
         if(!state.selected) return;
         state.pins.has(state.selected.name) ? state.pins.delete(state.selected.name) : state.pins.add(state.selected.name);
@@ -743,7 +705,6 @@
         document.getElementById('btnPinCur').classList.toggle('active');
         render();
       };
-
       document.getElementById('btnFavCur').onclick = () => {
         if(!state.selected) return;
         state.favs.has(state.selected.name) ? state.favs.delete(state.selected.name) : state.favs.add(state.selected.name);
@@ -751,14 +712,11 @@
         document.getElementById('btnFavCur').classList.toggle('active');
         render();
       };
-
       document.getElementById('btnShare').onclick = () => {
         const url = window.location.origin + window.location.pathname + "?ch=" + encodeURIComponent(state.selected.name);
-        navigator.clipboard.writeText(url);
-        alert("Link copied!");
+        navigator.clipboard.writeText(url).then(() => alert("Link copied!")).catch(() => alert("Failed to copy link."));
       };
     }
-
     init();
   </script>
 </body>
