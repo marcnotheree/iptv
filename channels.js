@@ -139,739 +139,109 @@ const channels = [
     "description": "",
     "country": "US"
   },
-  {
-    "name": "PROTV HD",
-    "embed": "https://canale-tv.net/channel/pr0tv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "A1 HD",
-    "embed": "https://canale-tv.net/channel/a1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TVR1",
-    "embed": "https://canale-tv.net/channel/tvr1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TVR2",
-    "embed": "https://canale-tv.net/channel/tvr2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CANAL D",
-    "embed": "https://canale-tv.net/channel/canald.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CANAL D2",
-    "embed": "https://canale-tv.net/channel/canald2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA TV",
-    "embed": "https://canale-tv.net/channel/primatv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NATIONAL TV",
-    "embed": "https://canale-tv.net/channel/nationaltv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TVR 3",
-    "embed": "https://canale-tv.net/channel/tvr3.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TVR INTERNATIONAL",
-    "embed": "https://canale-tv.net/channel/tvrinter.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PROCINEMA",
-    "embed": "https://canale-tv.net/channel/procinema.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ACASA TV",
-    "embed": "https://canale-tv.net/channel/acasatv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ACASA GOLD",
-    "embed": "https://canale-tv.net/channel/acasagold.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ANTENA STARS",
-    "embed": "https://canale-tv.net/channel/astars.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NATIONAL 24 PLUS",
-    "embed": "https://canale-tv.net/channel/national24plus.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "A3 CNN",
-    "embed": "https://canale-tv.net/channel/a3cnn.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ROMANIA TV",
-    "embed": "https://canale-tv.net/channel/romaniatv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "REALITATEA TV",
-    "embed": "https://canale-tv.net/channel/realitateatv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA NEWS",
-    "embed": "https://canale-tv.net/channel/primanews.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "B1 TV",
-    "embed": "https://canale-tv.net/channel/b1tv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "EURONEWS ROMANIA",
-    "embed": "https://canale-tv.net/channel/euronewsromnia.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NEWS24",
-    "embed": "https://canale-tv.net/channel/digi24.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CNN",
-    "embed": "https://canale-tv.net/channel/cnn.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "BBC NEWS",
-    "embed": "https://canale-tv.net/channel/bbcnews.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CBS REALITY",
-    "embed": "https://canale-tv.net/channel/cbsreality.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SUPERSPORT 1",
-    "embed": "https://canale-tv.net/channel/dgsp1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SUPERSPORT 2",
-    "embed": "https://canale-tv.net/channel/dgsp2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SUPERSPORT 3",
-    "embed": "https://canale-tv.net/channel/dgsp3.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SUPERSPORT 4",
-    "embed": "https://canale-tv.net/channel/dgsp4.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRO ARENA",
-    "embed": "https://canale-tv.net/channel/proarena.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TVR SPORT",
-    "embed": "https://canale-tv.net/channel/tvrsport.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA SPORT 1",
-    "embed": "https://canale-tv.net/channel/primasp1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA SPORT 2",
-    "embed": "https://canale-tv.net/channel/primasp2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA SPORT 3",
-    "embed": "https://canale-tv.net/channel/primasp3.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA SPORT 4",
-    "embed": "https://canale-tv.net/channel/primasp4.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PRIMA SPORT 5",
-    "embed": "https://canale-tv.net/channel/primasp5.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PPV 1",
-    "embed": "https://canale-tv.net/channel/ppv1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PPV 2",
-    "embed": "https://canale-tv.net/channel/ppv2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PPV 3",
-    "embed": "https://canale-tv.net/channel/ppv3.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SPORT EXTRA",
-    "embed": "https://canale-tv.net/channel/sportextra.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "EUR0SP0RT 1",
-    "embed": "https://canale-tv.net/channel/eurosp1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "EUR0SP0RT 2",
-    "embed": "https://canale-tv.net/channel/eurosp2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HB0",
-    "embed": "https://canale-tv.net/channel/hb.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HB0 2",
-    "embed": "https://canale-tv.net/channel/hb2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HB0 3",
-    "embed": "https://canale-tv.net/channel/hb3.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "DIVA",
-    "embed": "https://canale-tv.net/channel/diva.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HAPPY TV",
-    "embed": "https://canale-tv.net/channel/happy.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "FILM CAFE",
-    "embed": "https://canale-tv.net/channel/filmcafe.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TV 1000",
-    "embed": "https://canale-tv.net/channel/tv1000.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "FlLM N0W",
-    "embed": "https://canale-tv.net/channel/fnow.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "EPIC DRAMA",
-    "embed": "https://canale-tv.net/channel/epdrama.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "AMC",
-    "embed": "https://canale-tv.net/channel/amc.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SH0WTIME 1",
-    "embed": "https://canale-tv.net/channel/show1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "SH0WTIME 2",
-    "embed": "https://canale-tv.net/channel/show2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "AXN HD",
-    "embed": "https://canale-tv.net/channel/axn.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "AXN SPIN",
-    "embed": "https://canale-tv.net/channel/axnspin.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "AXN BLACK",
-    "embed": "https://canale-tv.net/channel/axnblack.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "AXN WHITE",
-    "embed": "https://canale-tv.net/channel/axnwhite.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CINEMAX",
-    "embed": "https://canale-tv.net/channel/cmax.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CINEMAX 2",
-    "embed": "https://canale-tv.net/channel/cmax2.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "BOLYWOOD TV",
-    "embed": "https://canale-tv.net/channel/bolywoodtv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "COMEDY CENTRAL",
-    "embed": "https://canale-tv.net/channel/ccentral.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "WARNER TV",
-    "embed": "https://canale-tv.net/channel/wornertv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "BBC FIRST",
-    "embed": "https://canale-tv.net/channel/bfirst.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "MINIMAX",
-    "embed": "https://canale-tv.net/channel/minimax.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CARTOON NETWORK",
-    "embed": "https://canale-tv.net/channel/cartoonnet.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "DISNEY CHANNEL",
-    "embed": "https://canale-tv.net/channel/disneych.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TEEN NICK",
-    "embed": "https://canale-tv.net/channel/teennick.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NICKELODEON",
-    "embed": "https://canale-tv.net/channel/nickelodeon.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "DISNEY JR",
-    "embed": "https://canale-tv.net/channel/disneyjr.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CARTOONITO",
-    "embed": "https://canale-tv.net/channel/cartonito.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NICKTOONS",
-    "embed": "https://canale-tv.net/channel/nicktoons.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NICK JR",
-    "embed": "https://canale-tv.net/channel/nickjr.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "JIM JAM",
-    "embed": "https://canale-tv.net/channel/jimjam.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "DUCK TV",
-    "embed": "https://canale-tv.net/channel/ducktv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "DISCOVERY CH",
-    "embed": "https://canale-tv.net/channel/discoverych.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HISTORY CHANNEL",
-    "embed": "https://canale-tv.net/channel/historych.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NAT GEO PEOPLE",
-    "embed": "https://canale-tv.net/channel/netgeopeople.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NATIONAL GEOGRAPHIC",
-    "embed": "https://canale-tv.net/channel/natgeo.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ID INVESTIGATION",
-    "embed": "https://canale-tv.net/channel/idinvest.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "CRIME & INVESTIGATION",
-    "embed": "https://canale-tv.net/channel/crimeinvest.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TLC",
-    "embed": "https://canale-tv.net/channel/tlc.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "NAT GEO WILD",
-    "embed": "https://canale-tv.net/channel/natgeowild.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "BBC EARTH",
-    "embed": "https://canale-tv.net/channel/bbcearth.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "VIASAT HISTORY",
-    "embed": "https://canale-tv.net/channel/viahist.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "VIASAT NATURE",
-    "embed": "https://canale-tv.net/channel/vianature.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "VIASAT EXPLORER",
-    "embed": "https://canale-tv.net/channel/viaexplorer.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TRAVEL MIX",
-    "embed": "https://canale-tv.net/channel/travelmix.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "PAPRIKA",
-    "embed": "https://canale-tv.net/channel/paprika.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HGTV",
-    "embed": "https://canale-tv.net/channel/hgtv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "TARAF TV",
-    "embed": "https://canale-tv.net/channel/taraf.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "FAVORIT TV",
-    "embed": "https://canale-tv.net/channel/favorit.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ETNO TV",
-    "embed": "https://canale-tv.net/channel/etno.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "HIT MUSIC",
-    "embed": "https://canale-tv.net/channel/hitmusic.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "BALCAN MUSIC",
-    "embed": "https://canale-tv.net/channel/balcanmuz.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "UTV",
-    "embed": "https://canale-tv.net/channel/utv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "KISS TV",
-    "embed": "https://canale-tv.net/channel/kisstv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "MUSIC CHANNEL",
-    "embed": "https://canale-tv.net/channel/musicch.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "ZU TV",
-    "embed": "https://canale-tv.net/channel/zutv.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "Fish & Hunting TV",
-    "embed": "https://canale-tv.net/channel/fishy.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "F1lm B0X",
-    "embed": "https://canale-tv.net/channel/fbox1.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "F1lm B0X Extra",
-    "embed": "https://canale-tv.net/channel/fbox-extra.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "F1lm B0X Premium",
-    "embed": "https://canale-tv.net/channel/fbox-premium.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "Canal 33",
-    "embed": "https://canale-tv.net/channel/canal-33.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  },
-  {
-    "name": "Dizi",
-    "embed": "https://canale-tv.net/channel/dizy.html",
-    "category": "User Provided",
-    "description": "",
-    "country": ""
-  }
+  {"name": "PROTV HD", "embed": "https://canale-tv.net/channel/pr0tv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "A1 HD", "embed": "https://canale-tv.net/channel/a1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TVR1", "embed": "https://canale-tv.net/channel/tvr1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TVR2", "embed": "https://canale-tv.net/channel/tvr2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CANAL D", "embed": "https://canale-tv.net/channel/canald.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CANAL D2", "embed": "https://canale-tv.net/channel/canald2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA TV", "embed": "https://canale-tv.net/channel/primatv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NATIONAL TV", "embed": "https://canale-tv.net/channel/nationaltv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TVR 3", "embed": "https://canale-tv.net/channel/tvr3.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TVR INTERNATIONAL", "embed": "https://canale-tv.net/channel/tvrinter.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PROCINEMA", "embed": "https://canale-tv.net/channel/procinema.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ACASA TV", "embed": "https://canale-tv.net/channel/acasatv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ACASA GOLD", "embed": "https://canale-tv.net/channel/acasagold.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ANTENA STARS", "embed": "https://canale-tv.net/channel/astars.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NATIONAL 24 PLUS", "embed": "https://canale-tv.net/channel/national24plus.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "A3 CNN", "embed": "https://canale-tv.net/channel/a3cnn.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ROMANIA TV", "embed": "https://canale-tv.net/channel/romaniatv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "REALITATEA TV", "embed": "https://canale-tv.net/channel/realitateatv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA NEWS", "embed": "https://canale-tv.net/channel/primanews.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "B1 TV", "embed": "https://canale-tv.net/channel/b1tv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "EURONEWS ROMANIA", "embed": "https://canale-tv.net/channel/euronewsromnia.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NEWS24", "embed": "https://canale-tv.net/channel/digi24.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CNN", "embed": "https://canale-tv.net/channel/cnn.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "BBC NEWS", "embed": "https://canale-tv.net/channel/bbcnews.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CBS REALITY", "embed": "https://canale-tv.net/channel/cbsreality.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SUPERSPORT 1", "embed": "https://canale-tv.net/channel/dgsp1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SUPERSPORT 2", "embed": "https://canale-tv.net/channel/dgsp2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SUPERSPORT 3", "embed": "https://canale-tv.net/channel/dgsp3.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SUPERSPORT 4", "embed": "https://canale-tv.net/channel/dgsp4.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRO ARENA", "embed": "https://canale-tv.net/channel/proarena.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TVR SPORT", "embed": "https://canale-tv.net/channel/tvrsport.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA SPORT 1", "embed": "https://canale-tv.net/channel/primasp1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA SPORT 2", "embed": "https://canale-tv.net/channel/primasp2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA SPORT 3", "embed": "https://canale-tv.net/channel/primasp3.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA SPORT 4", "embed": "https://canale-tv.net/channel/primasp4.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PRIMA SPORT 5", "embed": "https://canale-tv.net/channel/primasp5.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PPV 1", "embed": "https://canale-tv.net/channel/ppv1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PPV 2", "embed": "https://canale-tv.net/channel/ppv2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PPV 3", "embed": "https://canale-tv.net/channel/ppv3.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SPORT EXTRA", "embed": "https://canale-tv.net/channel/sportextra.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "EUR0SP0RT 1", "embed": "https://canale-tv.net/channel/eurosp1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "EUR0SP0RT 2", "embed": "https://canale-tv.net/channel/eurosp2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HB0", "embed": "https://canale-tv.net/channel/hb.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HB0 2", "embed": "https://canale-tv.net/channel/hb2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HB0 3", "embed": "https://canale-tv.net/channel/hb3.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "DIVA", "embed": "https://canale-tv.net/channel/diva.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HAPPY TV", "embed": "https://canale-tv.net/channel/happy.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "FILM CAFE", "embed": "https://canale-tv.net/channel/filmcafe.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TV 1000", "embed": "https://canale-tv.net/channel/tv1000.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "FlLM N0W", "embed": "https://canale-tv.net/channel/fnow.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "EPIC DRAMA", "embed": "https://canale-tv.net/channel/epdrama.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "AMC", "embed": "https://canale-tv.net/channel/amc.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SH0WTIME 1", "embed": "https://canale-tv.net/channel/show1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "SH0WTIME 2", "embed": "https://canale-tv.net/channel/show2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "AXN HD", "embed": "https://canale-tv.net/channel/axn.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "AXN SPIN", "embed": "https://canale-tv.net/channel/axnspin.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "AXN BLACK", "embed": "https://canale-tv.net/channel/axnblack.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "AXN WHITE", "embed": "https://canale-tv.net/channel/axnwhite.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CINEMAX", "embed": "https://canale-tv.net/channel/cmax.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CINEMAX 2", "embed": "https://canale-tv.net/channel/cmax2.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "BOLYWOOD TV", "embed": "https://canale-tv.net/channel/bolywoodtv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "COMEDY CENTRAL", "embed": "https://canale-tv.net/channel/ccentral.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "WARNER TV", "embed": "https://canale-tv.net/channel/wornertv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "BBC FIRST", "embed": "https://canale-tv.net/channel/bfirst.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "MINIMAX", "embed": "https://canale-tv.net/channel/minimax.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CARTOON NETWORK", "embed": "https://canale-tv.net/channel/cartoonnet.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "DISNEY CHANNEL", "embed": "https://canale-tv.net/channel/disneych.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TEEN NICK", "embed": "https://canale-tv.net/channel/teennick.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NICKELODEON", "embed": "https://canale-tv.net/channel/nickelodeon.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "DISNEY JR", "embed": "https://canale-tv.net/channel/disneyjr.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CARTOONITO", "embed": "https://canale-tv.net/channel/cartonito.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NICKTOONS", "embed": "https://canale-tv.net/channel/nicktoons.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NICK JR", "embed": "https://canale-tv.net/channel/nickjr.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "JIM JAM", "embed": "https://canale-tv.net/channel/jimjam.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "DUCK TV", "embed": "https://canale-tv.net/channel/ducktv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "DISCOVERY CH", "embed": "https://canale-tv.net/channel/discoverych.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HISTORY CHANNEL", "embed": "https://canale-tv.net/channel/historych.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NAT GEO PEOPLE", "embed": "https://canale-tv.net/channel/netgeopeople.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NATIONAL GEOGRAPHIC", "embed": "https://canale-tv.net/channel/natgeo.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ID INVESTIGATION", "embed": "https://canale-tv.net/channel/idinvest.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "CRIME & INVESTIGATION", "embed": "https://canale-tv.net/channel/crimeinvest.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TLC", "embed": "https://canale-tv.net/channel/tlc.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "NAT GEO WILD", "embed": "https://canale-tv.net/channel/natgeowild.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "BBC EARTH", "embed": "https://canale-tv.net/channel/bbcearth.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "VIASAT HISTORY", "embed": "https://canale-tv.net/channel/viahist.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "VIASAT NATURE", "embed": "https://canale-tv.net/channel/vianature.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "VIASAT EXPLORER", "embed": "https://canale-tv.net/channel/viaexplorer.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TRAVEL MIX", "embed": "https://canale-tv.net/channel/travelmix.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "PAPRIKA", "embed": "https://canale-tv.net/channel/paprika.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HGTV", "embed": "https://canale-tv.net/channel/hgtv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "TARAF TV", "embed": "https://canale-tv.net/channel/taraf.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "FAVORIT TV", "embed": "https://canale-tv.net/channel/favorit.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ETNO TV", "embed": "https://canale-tv.net/channel/etno.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "HIT MUSIC", "embed": "https://canale-tv.net/channel/hitmusic.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "BALCAN MUSIC", "embed": "https://canale-tv.net/channel/balcanmuz.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "UTV", "embed": "https://canale-tv.net/channel/utv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "KISS TV", "embed": "https://canale-tv.net/channel/kisstv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "MUSIC CHANNEL", "embed": "https://canale-tv.net/channel/musicch.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "ZU TV", "embed": "https://canale-tv.net/channel/zutv.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "Fish & Hunting TV", "embed": "https://canale-tv.net/channel/fishy.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "F1lm B0X", "embed": "https://canale-tv.net/channel/fbox1.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "F1lm B0X Extra", "embed": "https://canale-tv.net/channel/fbox-extra.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "F1lm B0X Premium", "embed": "https://canale-tv.net/channel/fbox-premium.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "Canal 33", "embed": "https://canale-tv.net/channel/canal-33.html", "category": "Canale TV ROMANIA Embed", "country": "RO"},
+  {"name": "Dizi", "embed": "https://canale-tv.net/channel/dizy.html", "category": "Canale TV ROMANIA Embed", "country": "RO"}
 ]
