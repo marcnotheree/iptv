@@ -178,15 +178,15 @@
 
     /* Grids */
     .section-label { font-size: 1rem; font-weight: 800; margin: 20px 0 15px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 12px; }
     .channel-card {
       padding: 12px; border-radius: var(--radius); background: var(--panel-2); border: 1px solid var(--border);
       cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; position: relative;
     }
     .channel-card:hover { border-color: var(--accent); transform: translateY(-4px); }
     .channel-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-    .card-title { font-weight: 800; font-size: 0.8rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 20px; }
-    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.6rem; color: var(--muted); }
+    .card-title { font-weight: 800; font-size: 0.75rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.55rem; color: var(--muted); }
     
     .card-icons { position: absolute; top: 8px; right: 4px; display: flex; flex-direction: column; gap: 2px; z-index: 10; }
     .grid-btn { background: none; border: none; padding: 2px; cursor: pointer; font-size: 0.75rem; opacity: 0.2; transition: all 0.2s; }
@@ -224,7 +224,7 @@
       .sidebar { position: fixed; left: 0; top: 0; width: 300px; height: 100vh; transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); box-shadow: 30px 0 100px rgba(0,0,0,0.8); }
       .menu-btn { display: flex; }
-      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+      .channel-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
       .compare-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -390,7 +390,6 @@
       {"name": "ETNO TV", "embed": "https://canale-tv.net/channel/etno.html", "category": "Music", "country": "RO", "slug": "ETNO_TV"}
     ];
 
-    // DEFINITIVE PROXY ENGINE (AllOrigins JSON is the most stable for Prod)
     const PROXY_ROOT = 'https://api.allorigins.win/get?url=';
 
     const state = {
@@ -434,7 +433,7 @@
     };
 
     async function loadEPG() {
-      // PROD FIX: Use Home Page as primary because it is less likely to be blocked
+      // PROD STABILITY FIX: Use Home Page as fallback if ACUM is blocked
       const sources = [
         'https://program-tv.ro/',
         'https://program-tv.ro/program-tv-acum/'
@@ -492,7 +491,7 @@
             if (state.view === 'compare') renderCompare();
             return;
           }
-        } catch (e) { console.warn("EPG source failed..."); }
+        } catch (e) { }
       }
     }
 
@@ -506,7 +505,7 @@
             <button class="nav-btn" style="width:auto; padding:8px 15px;" onclick="this.closest('.modal-overlay').remove()">✕</button>
           </div>
           <div class="modal-body" id="fullSchBody">
-            <div style="padding:40px; text-align:center;"><div class="skeleton" style="height:30px; width:200px; margin:0 auto;"></div><p>Fetching full daily schedule...</p></div>
+            <div style="padding:40px; text-align:center;"><div class="skeleton" style="height:30px; width:200px; margin:0 auto;"></div><p>Fetching schedule...</p></div>
           </div>
         </div>`;
       document.body.appendChild(modal);
@@ -517,9 +516,11 @@
         const res = await fetch(PROXY_ROOT + encodeURIComponent(url));
         const data = await res.json();
         const doc = new DOMParser().parseFromString(data.contents, "text/html");
-        const programs = doc.querySelectorAll(".smartpe_progentry_3col");
+        
+        const entries = doc.querySelectorAll(".striped_table_row, .smartpe_progentry_3col");
         let htmlList = "";
-        programs.forEach(p => {
+        
+        entries.forEach(p => {
           const time = p.querySelector(".smartpe_time_3col")?.textContent.trim();
           const title = p.querySelector(".smartpe_progtitle a")?.textContent.trim();
           if (time && title) {
@@ -556,10 +557,12 @@
       els.playerSection.classList.remove('hidden');
       els.playerTitle.textContent = channel.name;
       els.iframe.src = channel.embed;
+      
       document.getElementById('btnPinCur').onclick = (e) => togglePin(e, channel.name);
       document.getElementById('btnFavCur').onclick = (e) => toggleFavorite(e, channel.name);
       document.getElementById('btnPinCur').classList.toggle('active', state.pins.has(channel.name));
       document.getElementById('btnFavCur').classList.toggle('active', state.favs.has(channel.name));
+
       updateEPG();
       render();
       switchView('home');
@@ -569,6 +572,7 @@
       if (!state.selected) return;
       els.epgBox.classList.remove('hidden');
       if (!state.isEpgLoaded) { els.epgNow.textContent = "Syncing live data..."; return; }
+
       const data = state.epgData[state.selected.slug];
       if (data) {
         els.epgNow.textContent = data.now.title;
@@ -591,7 +595,7 @@
       }
       els.grids.compare.innerHTML = targets.map(c => {
         const data = state.epgData[c.slug];
-        let content = `<div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="padding:20px; color:var(--muted);">Syncing...</div>`;
+        let content = `<div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="padding:20px; color:var(--muted);">EPG loading...</div>`;
         if (data) {
           content = `<div class="compare-header"><span class="compare-name">${c.name}</span><div class="compare-live-dot"></div></div><div class="epg-current"><span class="filter-label" style="font-size:0.6rem;">Now Playing (${data.now.time})</span><span class="epg-value" style="font-size: 1rem; color: var(--accent);">${data.now.title}</span><div class="progress-bar"><div class="progress-fill" style="width: ${data.progress}%"></div></div></div><div style="margin-top:10px; font-size:0.8rem; color:var(--muted);">Next: ${data.next ? data.next.title : '---'}</div>`;
         }
@@ -611,6 +615,7 @@
       const pinned = filtered.filter(c => state.pins.has(c.name));
       const favs = filtered.filter(c => state.favs.has(c.name) && !state.pins.has(c.name));
       const others = filtered.filter(c => !state.pins.has(c.name) && !state.favs.has(c.name));
+      
       const drawGrid = (container, list) => {
         container.innerHTML = list.map(c => {
           const hasFav = state.favs.has(c.name);
