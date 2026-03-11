@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>IPTV Dark Hub Pro v2.0</title>
+  <link rel="icon" type="image/png" href="favicon.png">
   <style>
     :root {
       --bg: #07090f;
@@ -324,76 +325,60 @@
   <button class="menu-btn" id="menuBtn">☰</button>
 
   <script>
-    const userChannels = [
-      {"name": "PROTV HD", "embed": "https://canale-tv.net/channel/pr0tv.html", "category": "Entertainment", "country": "RO", "slug": "PRO_TV"},
-      {"name": "A1 HD", "embed": "https://canale-tv.net/channel/a1.html", "category": "Entertainment", "country": "RO", "slug": "ANTENA1"},
-      {"name": "TVR1", "embed": "https://canale-tv.net/channel/tvr1.html", "category": "General", "country": "RO", "slug": "TVR1"},
-      {"name": "TVR2", "embed": "https://canale-tv.net/channel/tvr2.html", "category": "General", "country": "RO", "slug": "TVR2"},
-      {"name": "CANAL D", "embed": "https://canale-tv.net/channel/canald.html", "category": "Entertainment", "country": "RO", "slug": "KANALD"},
-      {"name": "CANAL D2", "embed": "https://canale-tv.net/channel/canald2.html", "category": "Entertainment", "country": "RO", "slug": "KANALD2"},
-      {"name": "PRIMA TV", "embed": "https://canale-tv.net/channel/primatv.html", "category": "Entertainment", "country": "RO", "slug": "PRIMA_TV"},
-      {"name": "NATIONAL TV", "embed": "https://canale-tv.net/channel/nationaltv.html", "category": "Entertainment", "country": "RO", "slug": "NATIONAL_TV"},
-      {"name": "TVR 3", "embed": "https://canale-tv.net/channel/tvr3.html", "category": "General", "country": "RO", "slug": "TVR3"},
-      {"name": "TVR INTERNATIONAL", "embed": "https://canale-tv.net/channel/tvrinter.html", "category": "General", "country": "RO", "slug": "TVRI"},
-      {"name": "PROCINEMA", "embed": "https://canale-tv.net/channel/procinema.html", "category": "Movies", "country": "RO", "slug": "PRO_CINEMA"},
-      {"name": "ACASA TV", "embed": "https://canale-tv.net/channel/acasatv.html", "category": "Entertainment", "country": "RO", "slug": "ACASA"},
-      {"name": "ACASA GOLD", "embed": "https://canale-tv.net/channel/acasagold.html", "category": "Entertainment", "country": "RO", "slug": "ACASA_GOLD"},
-      {"name": "ANTENA STARS", "embed": "https://canale-tv.net/channel/astars.html", "category": "Entertainment", "country": "RO", "slug": "ANTENA_STARS"},
-      {"name": "NATIONAL 24 PLUS", "embed": "https://canale-tv.net/channel/national24plus.html", "category": "General", "country": "RO", "slug": "NATIONAL_24_PLUS"},
-      {"name": "A3 CNN", "embed": "https://canale-tv.net/channel/a3cnn.html", "category": "News", "country": "RO", "slug": "ANTENA3"},
-      {"name": "ROMANIA TV", "embed": "https://canale-tv.net/channel/romaniatv.html", "category": "News", "country": "RO", "slug": "ROMANIA_TV"},
-      {"name": "REALITATEA TV", "embed": "https://canale-tv.net/channel/realitateatv.html", "category": "News", "country": "RO", "slug": "REALITATEA_PLUS"},
-      {"name": "PRIMA NEWS", "embed": "https://canale-tv.net/channel/primanews.html", "category": "News", "country": "RO", "slug": "PRIMANEWS"},
-      {"name": "B1 TV", "embed": "https://canale-tv.net/channel/b1tv.html", "category": "News", "country": "RO", "slug": "B1_TV"},
-      {"name": "EURONEWS ROMANIA", "embed": "https://canale-tv.net/channel/euronewsromnia.html", "category": "News", "country": "RO", "slug": "EURONEWS"},
-      {"name": "NEWS24", "embed": "https://canale-tv.net/channel/digi24.html", "category": "News", "country": "RO", "slug": "DIGI24"},
-      {"name": "CNN", "embed": "https://canale-tv.net/channel/cnn.html", "category": "News", "country": "RO", "slug": "CNN"},
-      {"name": "BBC NEWS", "embed": "https://canale-tv.net/channel/bbcnews.html", "category": "News", "country": "RO", "slug": "BBC_NEWS"},
-      {"name": "CBS REALITY", "embed": "https://canale-tv.net/channel/cbsreality.html", "category": "Entertainment", "country": "RO", "slug": "CBS_REALITY"},
-      {"name": "SUPERSPORT 1", "embed": "https://canale-tv.net/channel/dgsp1.html", "category": "Sports", "country": "RO", "slug": "DIGISPORT1"},
-      {"name": "SUPERSPORT 2", "embed": "https://canale-tv.net/channel/dgsp2.html", "category": "Sports", "country": "RO", "slug": "DIGISPORT2"},
-      {"name": "SUPERSPORT 3", "embed": "https://canale-tv.net/channel/dgsp3.html", "category": "Sports", "country": "RO", "slug": "DIGISPORT3"},
-      {"name": "SUPERSPORT 4", "embed": "https://canale-tv.net/channel/dgsp4.html", "category": "Sports", "country": "RO", "slug": "DIGISPORT4"},
-      {"name": "PRO ARENA", "embed": "https://canale-tv.net/channel/proarena.html", "category": "Sports", "country": "RO", "slug": "PRO_ARENA"},
-      {"name": "TVR SPORT", "embed": "https://canale-tv.net/channel/tvrsport.html", "category": "Sports", "country": "RO", "slug": "TVR_SPORT"},
-      {"name": "PRIMA SPORT 1", "embed": "https://canale-tv.net/channel/primasp1.html", "category": "Sports", "country": "RO", "slug": "PRIMASPORT1"},
-      {"name": "PRIMA SPORT 2", "embed": "https://canale-tv.net/channel/primasp2.html", "category": "Sports", "country": "RO", "slug": "PRIMASPORT2"},
-      {"name": "PRIMA SPORT 3", "embed": "https://canale-tv.net/channel/primasp3.html", "category": "Sports", "country": "RO", "slug": "PRIMASPORT3"},
-      {"name": "PRIMA SPORT 4", "embed": "https://canale-tv.net/channel/primasp4.html", "category": "Sports", "country": "RO", "slug": "PRIMASPORT4"},
-      {"name": "PRIMA SPORT 5", "embed": "https://canale-tv.net/channel/primasp5.html", "category": "Sports", "country": "RO", "slug": "PRIMASPORT5"},
-      {"name": "HB0", "embed": "https://canale-tv.net/channel/hb.html", "category": "Movies", "country": "RO", "slug": "HBO"},
-      {"name": "HB0 2", "embed": "https://canale-tv.net/channel/hb2.html", "category": "Movies", "country": "RO", "slug": "HBO2"},
-      {"name": "HB0 3", "embed": "https://canale-tv.net/channel/hb3.html", "category": "Movies", "country": "RO", "slug": "HBO3"},
-      {"name": "DIVA", "embed": "https://canale-tv.net/channel/diva.html", "category": "Movies", "country": "RO", "slug": "DIVA"},
-      {"name": "HAPPY TV", "embed": "https://canale-tv.net/channel/happy.html", "category": "Entertainment", "country": "RO", "slug": "HAPPY_CHANNEL"},
-      {"name": "FILM CAFE", "embed": "https://canale-tv.net/channel/filmcafe.html", "category": "Movies", "country": "RO", "slug": "FILMCAFE"},
-      {"name": "TV 1000", "embed": "https://canale-tv.net/channel/tv1000.html", "category": "Movies", "country": "RO", "slug": "RUSSKOE_KINO"},
-      {"name": "FlLM N0W", "embed": "https://canale-tv.net/channel/fnow.html", "category": "Movies", "country": "RO", "slug": "FILMNOW"},
-      {"name": "EPIC DRAMA", "embed": "https://canale-tv.net/channel/epdrama.html", "category": "Movies", "country": "RO", "slug": "EPIC_DRAMA"},
-      {"name": "AMC", "embed": "https://canale-tv.net/channel/amc.html", "category": "Movies", "country": "RO", "slug": "AMC"},
-      {"name": "AXN HD", "embed": "https://canale-tv.net/channel/axn.html", "category": "Movies", "country": "RO", "slug": "AXN"},
-      {"name": "CINEMAX", "embed": "https://canale-tv.net/channel/cmax.html", "category": "Movies", "country": "RO", "slug": "CINEMAX"},
-      {"name": "CINEMAX 2", "embed": "https://canale-tv.net/channel/cmax2.html", "category": "Movies", "country": "RO", "slug": "CINEMAX2"},
-      {"name": "WARNER TV", "embed": "https://canale-tv.net/channel/wornertv.html", "category": "Movies", "country": "RO", "slug": "WARNER_TV"},
-      {"name": "MINIMAX", "embed": "https://canale-tv.net/channel/minimax.html", "category": "Kids", "country": "RO", "slug": "MINIMAX"},
-      {"name": "CARTOON NETWORK", "embed": "https://canale-tv.net/channel/cartoonnet.html", "category": "Kids", "country": "RO", "slug": "CARTOON"},
-      {"name": "DISNEY CHANNEL", "embed": "https://canale-tv.net/channel/disneych.html", "category": "Kids", "country": "RO", "slug": "DISNEY"},
-      {"name": "NICKELODEON", "embed": "https://canale-tv.net/channel/nickelodeon.html", "category": "Kids", "country": "RO", "slug": "NICKELODEON"},
-      {"name": "DISCOVERY CH", "embed": "https://canale-tv.net/channel/discoverych.html", "category": "Documentaries", "country": "RO", "slug": "DISCOVERY"},
-      {"name": "HISTORY CHANNEL", "embed": "https://canale-tv.net/channel/historych.html", "category": "Documentaries", "country": "RO", "slug": "HISTORY"},
-      {"name": "NATIONAL GEOGRAPHIC", "embed": "https://canale-tv.net/channel/natgeo.html", "category": "Documentaries", "country": "RO", "slug": "NATGEO"},
-      {"name": "NAT GEO WILD", "embed": "https://canale-tv.net/channel/natgeowild.html", "category": "Documentaries", "country": "RO", "slug": "NATGEOWILD"},
-      {"name": "ZU TV", "embed": "https://canale-tv.net/channel/zutv.html", "category": "Music", "country": "RO", "slug": "ZUTV"},
-      {"name": "KISS TV", "embed": "https://canale-tv.net/channel/kisstv.html", "category": "Music", "country": "RO", "slug": "KISS_TV"},
-      {"name": "UTV", "embed": "https://canale-tv.net/channel/utv.html", "category": "Music", "country": "RO", "slug": "U_TV"},
-      {"name": "TARAF TV", "embed": "https://canale-tv.net/channel/taraf.html", "category": "Music", "country": "RO", "slug": "TARAF_TV"},
-      {"name": "ETNO TV", "embed": "https://canale-tv.net/channel/etno.html", "category": "Music", "country": "RO", "slug": "ETNO_TV"}
+    const STATIC_CHANNELS = [
+      {"name": "PRO TV", "embed": "https://canale-tv.net/channel/pr0tv.html", "category": "General", "slug": "pro-tv"},
+      {"name": "Antena 1", "embed": "https://canale-tv.net/channel/a1.html", "category": "General", "slug": "antena-1"},
+      {"name": "TVR 1", "embed": "https://canale-tv.net/channel/tvr1.html", "category": "General", "slug": "tvr-1"},
+      {"name": "TVR 2", "embed": "https://canale-tv.net/channel/tvr2.html", "category": "General", "slug": "tvr-2"},
+      {"name": "Kanal D", "embed": "https://canale-tv.net/channel/canald.html", "category": "General", "slug": "kanal-d"},
+      {"name": "Kanal D2", "embed": "https://canale-tv.net/channel/canald2.html", "category": "General", "slug": "kanal-d2"},
+      {"name": "Prima TV", "embed": "https://canale-tv.net/channel/primatv.html", "category": "General", "slug": "prima-tv"},
+      {"name": "Național TV", "embed": "https://canale-tv.net/channel/nationaltv.html", "category": "General", "slug": "national-tv"},
+      {"name": "TVR 3", "embed": "https://canale-tv.net/channel/tvr3.html", "category": "General", "slug": "tvr-3"},
+      {"name": "PRO Cinema", "embed": "https://canale-tv.net/channel/procinema.html", "category": "Filme", "slug": "pro-cinema"},
+      {"name": "Acasă TV", "embed": "https://canale-tv.net/channel/acasatv.html", "category": "General", "slug": "acasa-tv"},
+      {"name": "Antena Stars", "embed": "https://canale-tv.net/channel/astars.html", "category": "General", "slug": "antena-stars"},
+      {"name": "Antena 3 CNN", "embed": "https://canale-tv.net/channel/a3cnn.html", "category": "Știri", "slug": "antena-3-cnn"},
+      {"name": "România TV", "embed": "https://canale-tv.net/channel/romaniatv.html", "category": "Știri", "slug": "romania-tv"},
+      {"name": "Realitatea Plus", "embed": "https://canale-tv.net/channel/realitateatv.html", "category": "Știri", "slug": "realitatea-plus"},
+      {"name": "B1 TV", "embed": "https://canale-tv.net/channel/b1tv.html", "category": "Știri", "slug": "b1-tv"},
+      {"name": "Digi 24", "embed": "https://canale-tv.net/channel/digi24.html", "category": "Știri", "slug": "digi-24"},
+      {"name": "CNN", "embed": "https://canale-tv.net/channel/cnn.html", "category": "Știri", "slug": "cnn"},
+      {"name": "Digi Sport 1", "embed": "https://canale-tv.net/channel/dgsp1.html", "category": "Sport", "slug": "digi-sport-1"},
+      {"name": "Digi Sport 2", "embed": "https://canale-tv.net/channel/dgsp2.html", "category": "Sport", "slug": "digi-sport-2"},
+      {"name": "Digi Sport 3", "embed": "https://canale-tv.net/channel/dgsp3.html", "category": "Sport", "slug": "digi-sport-3"},
+      {"name": "Digi Sport 4", "embed": "https://canale-tv.net/channel/dgsp4.html", "category": "Sport", "slug": "digi-sport-4"},
+      {"name": "PRO Arena", "embed": "https://canale-tv.net/channel/proarena.html", "category": "Sport", "slug": "pro-arena"},
+      {"name": "HBO", "embed": "https://canale-tv.net/channel/hb.html", "category": "Filme", "slug": "hbo"},
+      {"name": "HBO 2", "embed": "https://canale-tv.net/channel/hb2.html", "category": "Filme", "slug": "hbo-2"},
+      {"name": "HBO 3", "embed": "https://canale-tv.net/channel/hb3.html", "category": "Filme", "slug": "hbo-3"},
+      {"name": "Diva", "embed": "https://canale-tv.net/channel/diva.html", "category": "Filme", "slug": "diva"},
+      {"name": "Filmcafe", "embed": "https://canale-tv.net/channel/filmcafe.html", "category": "Filme", "slug": "filmcafe"},
+      {"name": "Film Now", "embed": "https://canale-tv.net/channel/fnow.html", "category": "Filme", "slug": "film-now"},
+      {"name": "AMC", "embed": "https://canale-tv.net/channel/amc.html", "category": "Filme", "slug": "amc"},
+      {"name": "AXN", "embed": "https://canale-tv.net/channel/axn.html", "category": "Filme", "slug": "axn"},
+      {"name": "Cinemax", "embed": "https://canale-tv.net/channel/cmax.html", "category": "Filme", "slug": "cinemax"},
+      {"name": "Cinemax 2", "embed": "https://canale-tv.net/channel/cmax2.html", "category": "Filme", "slug": "cinemax-2"},
+      {"name": "Warner TV", "embed": "https://canale-tv.net/channel/wornertv.html", "category": "Filme", "slug": "warner-tv"},
+      {"name": "Minimax", "embed": "https://canale-tv.net/channel/minimax.html", "category": "Copii", "slug": "minimax"},
+      {"name": "Cartoon Network", "embed": "https://canale-tv.net/channel/cartoonnet.html", "category": "Copii", "slug": "cartoon-network"},
+      {"name": "Disney Channel", "embed": "https://canale-tv.net/channel/disneych.html", "category": "Copii", "slug": "disney-channel"},
+      {"name": "Nickelodeon", "embed": "https://canale-tv.net/channel/nickelodeon.html", "category": "Copii", "slug": "nickelodeon"},
+      {"name": "Discovery Channel", "embed": "https://canale-tv.net/channel/discoverych.html", "category": "Documentare", "slug": "discovery-channel"},
+      {"name": "History", "embed": "https://canale-tv.net/channel/historych.html", "category": "Documentare", "slug": "history"},
+      {"name": "National Geographic", "embed": "https://canale-tv.net/channel/natgeo.html", "category": "Documentare", "slug": "national-geographic"},
+      {"name": "Nat Geo Wild", "embed": "https://canale-tv.net/channel/natgeowild.html", "category": "Documentare", "slug": "nat-geo-wild"},
+      {"name": "ZU TV", "embed": "https://canale-tv.net/channel/zutv.html", "category": "Muzică", "slug": "zu-tv"},
+      {"name": "Kiss TV", "embed": "https://canale-tv.net/channel/kisstv.html", "category": "Muzică", "slug": "kiss-tv"},
+      {"name": "UTV", "embed": "https://canale-tv.net/channel/utv.html", "category": "Muzică", "slug": "utv"},
+      {"name": "Taraf TV", "embed": "https://canale-tv.net/channel/taraf.html", "category": "Muzică", "slug": "taraf-tv"},
+      {"name": "Etno TV", "embed": "https://canale-tv.net/channel/etno.html", "category": "Muzică", "slug": "etno-tv"}
     ];
 
     const PROXY_ROOT = 'https://api.allorigins.win/get?url=';
 
     const state = {
-      all: [...userChannels],
+      all: [...STATIC_CHANNELS],
       favs: new Set(JSON.parse(localStorage.getItem('iptv-favs') || '[]')),
       pins: new Set(JSON.parse(localStorage.getItem('iptv-pins') || '[]')),
       view: 'home',
@@ -432,66 +417,171 @@
       btnPins: document.getElementById('togglePins')
     };
 
-    async function loadEPG() {
-      // PROD STABILITY FIX: Use Home Page as fallback if ACUM is blocked
-      const sources = [
-        'https://program-tv.ro/',
-        'https://program-tv.ro/program-tv-acum/'
+    async function fetchChannelsFromProgramTV() {
+      console.log("Fetching channels from ProgramTV...");
+      const PROXIES = [
+        'http://localhost:8080/',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://corsproxy.io/?'
       ];
-
-      for (const url of sources) {
+      
+      let html = null;
+      for (const proxy of PROXIES) {
         try {
-          const res = await fetch(PROXY_ROOT + encodeURIComponent(url));
-          const data = await res.json();
-          const html = data.contents;
-          if (!html || html.length < 5000) continue;
+          const target = 'https://programtv.ro/canale-tv';
+          const url = proxy.includes('localhost') ? proxy + target : proxy + encodeURIComponent(target);
+          const headers = proxy.includes('localhost') ? { 'x-requested-with': 'XMLHttpRequest' } : {};
+          
+          const res = await fetch(url, { headers });
+          if (!res.ok) throw new Error("Proxy error");
+          
+          const text = await res.text();
+          let data = null;
+          try { data = JSON.parse(text); } catch(e) {}
+          html = (data && data.contents) ? data.contents : text;
+          
+          if (html && html.includes('/canal-tv/')) {
+            console.log(`Successfully fetched via ${proxy}`);
+            break;
+          }
+        } catch (e) { console.warn(`Proxy ${proxy} failed`); }
+      }
 
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
+      if (!html) return;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const links = doc.querySelectorAll("a[href^='/canal-tv/']");
+      const fetchedChannels = [];
+      const seenSlugs = new Set();
+
+        links.forEach(link => {
+          const rawSlug = link.getAttribute("href").split("/").pop();
+          if (!rawSlug || seenSlugs.has(rawSlug)) return;
+          seenSlugs.add(rawSlug);
+
+          const name = link.textContent.trim() || rawSlug;
+          const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '').includes('protv') ? 'pro-tv' : rawSlug; 
+          
+          const staticMatch = STATIC_CHANNELS.find(c => c.slug === rawSlug || c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
+          
+          // ONLY add if we have a valid embed link
+          if (staticMatch && staticMatch.embed) {
+            fetchedChannels.push({
+              name: name,
+              slug: rawSlug,
+              epgSlug: staticMatch.slug,
+              embed: staticMatch.embed,
+              category: staticMatch.category,
+              isFetched: true
+            });
+          }
+        });
+
+      if (fetchedChannels.length > 0) {
+        const merged = [...fetchedChannels];
+        STATIC_CHANNELS.forEach(sc => {
+          if (!seenSlugs.has(sc.slug)) merged.push(sc);
+        });
+        state.all = merged;
+        const cats = ['all', ...new Set(state.all.map(c => c.category))].sort();
+        els.category.innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+        render();
+      }
+    }
+
+    async function loadEPG() {
+      console.log("Loading EPG data...");
+      const PROXIES = [
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'http://localhost:8080/'
+      ];
+      
+      const fetchPage = async (target) => {
+        for (const proxy of PROXIES) {
+          try {
+            const url = proxy.includes('localhost') ? proxy + target : proxy + encodeURIComponent(target);
+            const headers = proxy.includes('localhost') ? { 'x-requested-with': 'XMLHttpRequest' } : {};
+            const res = await fetch(url, { headers });
+            if (!res.ok) continue;
+            const text = await res.text();
+            let data = null;
+            try { data = JSON.parse(text); } catch(e) {}
+            const html = (data && data.contents) ? data.contents : text;
+            if (html && (html.includes('serverApp-state') || html.includes('striped_table_row'))) return html;
+          } catch (e) {}
+        }
+        return null;
+      };
+
+      const epgData = {};
+
+      const nameToSlug = (name) => {
+        const map = {
+          'protv': 'pro-tv', 'antena1': 'antena-1', 'kanald': 'kanal-d', 'kanald2': 'kanal-d2',
+          'primatv': 'prima-tv', 'nationaltv': 'national-tv', 'tvr1': 'tvr-1', 'tvr2': 'tvr-2',
+          'procinema': 'pro-cinema', 'acasatv': 'acasa-tv', 'antenastars': 'antena-stars',
+          'antena3': 'antena-3-cnn', 'romaniatv': 'romania-tv', 'realitateatv': 'realitatea-plus',
+          'b1tv': 'b1-tv', 'digi24': 'digi-24', 'digisport1': 'digi-sport-1', 'digisport2': 'digi-sport-2',
+          'digisport3': 'digi-sport-3', 'digisport4': 'digi-sport-4', 'proarena': 'pro-arena',
+          'hbo': 'hbo', 'hbo2': 'hbo-2', 'hbo3': 'hbo-3', 'filmnow': 'film-now', 'warner': 'warner-tv'
+        };
+        const simple = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (let k in map) { if (simple.includes(k)) return map[k]; }
+        return name.toLowerCase().replace(/ș/g, 's').replace(/ț/g, 't').replace(/ă|â/g, 'a').replace(/î/g, 'i')
+          .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      };
+
+      // 1. Primary: programtv.ro (Modern JSON)
+      const htmlModern = await fetchPage('https://programtv.ro/');
+      if (htmlModern && htmlModern.includes('serverApp-state')) {
+        try {
+          const doc = new DOMParser().parseFromString(htmlModern, "text/html");
+          const rawJson = doc.getElementById('serverApp-state').textContent.replace(/&q;/g, '"');
+          const json = JSON.parse(rawJson);
+          (json.popularChannels || []).forEach(ch => {
+            epgData[ch.path] = {
+              now: { title: ch.currentTvShowName, time: ch.currentTvShowBroadcastTime },
+              next: { title: ch.nextTvShowName, time: ch.nextTvShowBroadcastTime },
+              progress: ch.progressBar || 0
+            };
+          });
+        } catch(e) {}
+      }
+
+      // 2. Secondary: program-tv.ro (Classic Table - high coverage)
+      const htmlLegacy = await fetchPage('https://www.program-tv.ro/');
+      if (htmlLegacy && htmlLegacy.includes('striped_table_row')) {
+        try {
+          const doc = new DOMParser().parseFromString(htmlLegacy, "text/html");
           const rows = doc.querySelectorAll(".striped_table_row");
-          const newEpg = {};
-
           rows.forEach(row => {
             const link = row.querySelector("a.channelheaderlink");
             if (!link) return;
             const slug = link.getAttribute("href").split("/").pop();
-            
-            const parseCol = (selector) => {
-              const col = row.querySelector(selector);
-              if (!col) return null;
-              const timeEl = col.querySelector(".smartpe_time_3col");
-              const titleEl = col.querySelector(".smartpe_progtitle a");
-              return (timeEl && titleEl) ? { time: timeEl.textContent.trim(), title: titleEl.textContent.trim() } : null;
-            };
+            if (epgData[slug]) return;
 
+            const parseCol = (sel) => {
+              const col = row.querySelector(sel);
+              if (!col) return null;
+              const time = col.querySelector(".smartpe_time_3col")?.textContent.trim();
+              const title = col.querySelector(".smartpe_progtitle a")?.textContent.trim();
+              return (time && title) ? { time, title } : null;
+            };
             const now = parseCol(".data_left_3col");
             const next = parseCol(".data_middle_3col");
-            const later = parseCol(".data_right_3col");
-
-            if (now) {
-              let progress = 0;
-              if (next) {
-                const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
-                const [nh, nm] = now.time.split(":").map(Number);
-                const [nxth, nxtm] = next.time.split(":").map(Number);
-                const startTime = new Date(roNow); startTime.setHours(nh, nm, 0);
-                const endTime = new Date(roNow); endTime.setHours(nxth, nxtm, 0);
-                if (endTime < startTime) endTime.setDate(endTime.getDate() + 1);
-                if (roNow < startTime) startTime.setDate(startTime.getDate() - 1);
-                progress = ((roNow - startTime) / (endTime - startTime)) * 100;
-              }
-              newEpg[slug] = { now, next, later, progress: Math.min(100, Math.max(0, progress)) };
-            }
+            if (now) epgData[slug] = { now, next, progress: 50 };
           });
+        } catch(e) {}
+      }
 
-          if (Object.keys(newEpg).length > 5) {
-            state.epgData = newEpg;
-            state.isEpgLoaded = true;
-            if (state.selected) updateEPG();
-            if (state.view === 'compare') renderCompare();
-            return;
-          }
-        } catch (e) { }
+      if (Object.keys(epgData).length > 0) {
+        state.epgData = epgData;
+        state.isEpgLoaded = true;
+        console.log(`EPG loaded for ${Object.keys(epgData).length} channels.`);
+        if (state.selected) updateEPG();
+        if (state.view === 'compare') renderCompare();
       }
     }
 
@@ -568,12 +658,65 @@
       switchView('home');
     }
 
-    function updateEPG() {
+    async function fetchEPGFromFastTV(channelName) {
+      const PROXIES = ['https://corsproxy.io/?', 'https://api.codetabs.com/v1/proxy?quest='];
+      const target = `https://epg.fast-tv.net/fast/d1d1b64180cd/player_epg=${encodeURIComponent(channelName)}`;
+      
+      for (const proxy of PROXIES) {
+        try {
+          const res = await fetch(proxy + encodeURIComponent(target));
+          const text = await res.text();
+          if (text && text.includes('Acum:')) {
+            const doc = new DOMParser().parseFromString(text, "text/html");
+            const bodyText = doc.body.innerText;
+            
+            const nowMatch = bodyText.match(/Acum:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+            const nextMatch = bodyText.match(/Urmează:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+            
+            if (nowMatch) {
+              const nowTitle = nowMatch[1].trim();
+              const nowTime = nowMatch[2].trim();
+              const endTime = nowMatch[3].trim();
+              
+              // Calculate progress
+              const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
+              const [sh, sm] = nowTime.split(":").map(Number);
+              const [eh, em] = endTime.split(":").map(Number);
+              const start = new Date(roNow); start.setHours(sh, sm, 0);
+              const end = new Date(roNow); end.setHours(eh, em, 0);
+              if (end < start) end.setDate(end.getDate() + 1);
+              const progress = Math.min(100, Math.max(0, ((roNow - start) / (end - start)) * 100));
+
+              return {
+                now: { title: nowTitle, time: nowTime },
+                next: nextMatch ? { title: nextMatch[1].trim(), time: nextMatch[2].trim() } : null,
+                progress: progress
+              };
+            }
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function updateEPG() {
       if (!state.selected) return;
       els.epgBox.classList.remove('hidden');
-      if (!state.isEpgLoaded) { els.epgNow.textContent = "Syncing live data..."; return; }
+      
+      // 1. Try existing data first
+      const s = state.selected;
+      let data = state.epgData[s.epgSlug] || state.epgData[s.slug] || state.epgData[nameToSlug(s.name)];
+      
+      // 2. If not found or stale, try Fast-TV on-demand
+      if (!data) {
+        els.epgNow.textContent = "Fetching live info...";
+        data = await fetchEPGFromFastTV(s.name);
+        if (data) {
+          // Cache it
+          state.epgData[s.slug] = data;
+        }
+      }
 
-      const data = state.epgData[state.selected.slug];
       if (data) {
         els.epgNow.textContent = data.now.title;
         els.epgProgress.style.width = data.progress + '%';
@@ -594,7 +737,7 @@
         return;
       }
       els.grids.compare.innerHTML = targets.map(c => {
-        const data = state.epgData[c.slug];
+        const data = state.epgData[c.epgSlug] || state.epgData[c.slug] || state.epgData[nameToSlug(c.name)];
         let content = `<div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="padding:20px; color:var(--muted);">EPG loading...</div>`;
         if (data) {
           content = `<div class="compare-header"><span class="compare-name">${c.name}</span><div class="compare-live-dot"></div></div><div class="epg-current"><span class="filter-label" style="font-size:0.6rem;">Now Playing (${data.now.time})</span><span class="epg-value" style="font-size: 1rem; color: var(--accent);">${data.now.title}</span><div class="progress-bar"><div class="progress-fill" style="width: ${data.progress}%"></div></div></div><div style="margin-top:10px; font-size:0.8rem; color:var(--muted);">Next: ${data.next ? data.next.title : '---'}</div>`;
@@ -672,6 +815,7 @@
         navigator.clipboard.writeText(url).then(() => alert("Link copied!"));
       };
       loadEPG();
+      fetchChannelsFromProgramTV();
       setInterval(loadEPG, 60000); 
     }
     init();
