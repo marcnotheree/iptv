@@ -179,17 +179,32 @@
 
     /* Grids */
     .section-label { font-size: 1rem; font-weight: 800; margin: 20px 0 15px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 12px; }
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
     .channel-card {
-      padding: 12px; border-radius: var(--radius); background: var(--panel-2); border: 1px solid var(--border);
-      cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; position: relative;
+      padding: 16px; border-radius: var(--radius); background: var(--panel-2); border: 1px solid var(--border);
+      cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; position: relative;
+      min-height: 120px;
     }
     .channel-card:hover { border-color: var(--accent); transform: translateY(-4px); }
     .channel-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-    .card-title { font-weight: 800; font-size: 0.75rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.55rem; color: var(--muted); }
+    .card-title { font-weight: 800; font-size: 0.9rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 25px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     
-    .card-icons { position: absolute; top: 8px; right: 4px; display: flex; flex-direction: column; gap: 2px; z-index: 10; }
+    .card-epg-info {
+      font-size: 0.75rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+    .card-epg-none { color: var(--muted); font-style: italic; font-weight: 400; }
+
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.65rem; color: var(--muted); padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+    
+    .card-icons { position: absolute; top: 12px; right: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 10; }
     .grid-btn { background: none; border: none; padding: 2px; cursor: pointer; font-size: 0.75rem; opacity: 0.2; transition: all 0.2s; }
     .grid-btn:hover { opacity: 1; transform: scale(1.3); }
     .grid-btn.active { opacity: 1; }
@@ -417,6 +432,51 @@
       btnPins: document.getElementById('togglePins')
     };
 
+    const nameToSlug = (name) => {
+      const map = {
+        'protv': 'pro-tv', 'antena1': 'antena-1', 'kanald': 'kanal-d', 'kanald2': 'kanal-d2',
+        'primatv': 'prima-tv', 'nationaltv': 'national-tv', 'tvr1': 'tvr-1', 'tvr2': 'tvr-2',
+        'procinema': 'pro-cinema', 'acasatv': 'acasa-tv', 'antenastars': 'antena-stars',
+        'antena3': 'antena-3-cnn', 'romaniatv': 'romania-tv', 'realitateatv': 'realitatea-plus',
+        'b1tv': 'b1-tv', 'digi24': 'digi-24', 'digisport1': 'digi-sport-1', 'digisport2': 'digi-sport-2',
+        'digisport3': 'digi-sport-3', 'digisport4': 'digi-sport-4', 'proarena': 'pro-arena',
+        'hbo': 'hbo', 'hbo2': 'hbo-2', 'hbo3': 'hbo-3', 'filmnow': 'film-now', 'warner': 'warner-tv'
+      };
+      const simple = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      for (let k in map) { if (simple.includes(k)) return map[k]; }
+      return name.toLowerCase().replace(/ș/g, 's').replace(/ț/g, 't').replace(/ă|â/g, 'a').replace(/î/g, 'i')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    };
+
+    const getRomaniaTime = () => {
+      const options = { timeZone: "Europe/Bucharest", hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      const formatter = new Intl.DateTimeFormat('en-GB', options);
+      const parts = formatter.formatToParts(new Date());
+      const h = parseInt(parts.find(p => p.type === 'hour').value);
+      const m = parseInt(parts.find(p => p.type === 'minute').value);
+      const d = new Date();
+      d.setHours(h, m, 0, 0);
+      return d;
+    };
+
+    const calculateProgress = (startTimeStr, endTimeStr) => {
+      try {
+        const roNow = getRomaniaTime();
+        const [sh, sm] = startTimeStr.split(':').map(Number);
+        const [eh, em] = endTimeStr.split(':').map(Number);
+        
+        const start = new Date(roNow); start.setHours(sh, sm, 0, 0);
+        const end = new Date(roNow); end.setHours(eh, em, 0, 0);
+        
+        if (end < start) end.setDate(end.getDate() + 1);
+        if (roNow < start) start.setDate(start.getDate() - 1);
+        
+        const total = end - start;
+        const elapsed = roNow - start;
+        return Math.min(100, Math.max(0, (elapsed / total) * 100));
+      } catch(e) { return 0; }
+    };
+
     async function fetchChannelsFromProgramTV() {
       console.log("Fetching channels from ProgramTV...");
       const PROXIES = [
@@ -465,7 +525,6 @@
           
           const staticMatch = STATIC_CHANNELS.find(c => c.slug === rawSlug || c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
           
-          // ONLY add if we have a valid embed link
           if (staticMatch && staticMatch.embed) {
             fetchedChannels.push({
               name: name,
@@ -517,22 +576,6 @@
 
       const epgData = {};
 
-      const nameToSlug = (name) => {
-        const map = {
-          'protv': 'pro-tv', 'antena1': 'antena-1', 'kanald': 'kanal-d', 'kanald2': 'kanal-d2',
-          'primatv': 'prima-tv', 'nationaltv': 'national-tv', 'tvr1': 'tvr-1', 'tvr2': 'tvr-2',
-          'procinema': 'pro-cinema', 'acasatv': 'acasa-tv', 'antenastars': 'antena-stars',
-          'antena3': 'antena-3-cnn', 'romaniatv': 'romania-tv', 'realitateatv': 'realitatea-plus',
-          'b1tv': 'b1-tv', 'digi24': 'digi-24', 'digisport1': 'digi-sport-1', 'digisport2': 'digi-sport-2',
-          'digisport3': 'digi-sport-3', 'digisport4': 'digi-sport-4', 'proarena': 'pro-arena',
-          'hbo': 'hbo', 'hbo2': 'hbo-2', 'hbo3': 'hbo-3', 'filmnow': 'film-now', 'warner': 'warner-tv'
-        };
-        const simple = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-        for (let k in map) { if (simple.includes(k)) return map[k]; }
-        return name.toLowerCase().replace(/ș/g, 's').replace(/ț/g, 't').replace(/ă|â/g, 'a').replace(/î/g, 'i')
-          .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      };
-
       // 1. Primary: programtv.ro (Modern JSON)
       const htmlModern = await fetchPage('https://programtv.ro/');
       if (htmlModern && htmlModern.includes('serverApp-state')) {
@@ -571,18 +614,39 @@
             };
             const now = parseCol(".data_left_3col");
             const next = parseCol(".data_middle_3col");
-            if (now) epgData[slug] = { now, next, progress: 50 };
+            if (now) {
+              const progress = next ? calculateProgress(now.time, next.time) : 50;
+              epgData[slug] = { now, next, progress };
+            }
           });
         } catch(e) {}
       }
 
       if (Object.keys(epgData).length > 0) {
-        state.epgData = epgData;
+        state.epgData = { ...state.epgData, ...epgData };
         state.isEpgLoaded = true;
-        console.log(`EPG loaded for ${Object.keys(epgData).length} channels.`);
+        console.log(`EPG loaded for ${Object.keys(state.epgData).length} channels.`);
+        render();
         if (state.selected) updateEPG();
         if (state.view === 'compare') renderCompare();
       }
+      fetchAllMissingEPG();
+    }
+
+    async function fetchAllMissingEPG() {
+      console.log("Background EPG sync started...");
+      for (const channel of state.all) {
+        const hasData = state.epgData[channel.epgSlug] || state.epgData[channel.slug] || state.epgData[nameToSlug(channel.name)];
+        if (!hasData) {
+          const data = await fetchEPGFromFastTV(channel.name);
+          if (data) {
+            state.epgData[channel.slug] = data;
+            render();
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
+      }
+      console.log("Background EPG sync completed.");
     }
 
     async function showFullSchedule(channel) {
@@ -677,15 +741,7 @@
               const nowTitle = nowMatch[1].trim();
               const nowTime = nowMatch[2].trim();
               const endTime = nowMatch[3].trim();
-              
-              // Calculate progress
-              const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
-              const [sh, sm] = nowTime.split(":").map(Number);
-              const [eh, em] = endTime.split(":").map(Number);
-              const start = new Date(roNow); start.setHours(sh, sm, 0);
-              const end = new Date(roNow); end.setHours(eh, em, 0);
-              if (end < start) end.setDate(end.getDate() + 1);
-              const progress = Math.min(100, Math.max(0, ((roNow - start) / (end - start)) * 100));
+              const progress = calculateProgress(nowTime, endTime);
 
               return {
                 now: { title: nowTitle, time: nowTime },
@@ -703,16 +759,13 @@
       if (!state.selected) return;
       els.epgBox.classList.remove('hidden');
       
-      // 1. Try existing data first
       const s = state.selected;
       let data = state.epgData[s.epgSlug] || state.epgData[s.slug] || state.epgData[nameToSlug(s.name)];
       
-      // 2. If not found or stale, try Fast-TV on-demand
       if (!data) {
         els.epgNow.textContent = "Fetching live info...";
         data = await fetchEPGFromFastTV(s.name);
         if (data) {
-          // Cache it
           state.epgData[s.slug] = data;
         }
       }
@@ -755,6 +808,17 @@
         const mp = !state.filters.onlyPins || state.pins.has(c.name);
         return ms && mc && mf && mp;
       });
+
+      filtered.sort((a, b) => {
+        const pinA = state.pins.has(a.name) ? 1 : 0;
+        const pinB = state.pins.has(b.name) ? 1 : 0;
+        if (pinA !== pinB) return pinB - pinA;
+        const hasA = !!(state.epgData[a.epgSlug] || state.epgData[a.slug] || state.epgData[nameToSlug(a.name)]);
+        const hasB = !!(state.epgData[b.epgSlug] || state.epgData[b.slug] || state.epgData[nameToSlug(b.name)]);
+        if (hasA !== hasB) return hasB - hasA;
+        return a.name.localeCompare(b.name);
+      });
+
       const pinned = filtered.filter(c => state.pins.has(c.name));
       const favs = filtered.filter(c => state.favs.has(c.name) && !state.pins.has(c.name));
       const others = filtered.filter(c => !state.pins.has(c.name) && !state.favs.has(c.name));
@@ -763,6 +827,12 @@
         container.innerHTML = list.map(c => {
           const hasFav = state.favs.has(c.name);
           const hasPin = state.pins.has(c.name);
+          const epg = state.epgData[c.epgSlug] || state.epgData[c.slug] || state.epgData[nameToSlug(c.name)];
+          
+          const epgHtml = epg 
+            ? `<div class="card-epg-info">${epg.now.title}</div>` 
+            : `<div class="card-epg-info card-epg-none">No schedule data</div>`;
+
           return `
           <div class="channel-card ${state.selected?.name === c.name ? 'active' : ''}" onclick="window.playByName('${c.name}')">
             <div class="card-icons">
@@ -770,6 +840,7 @@
               <button class="grid-btn icon-fav ${hasFav ? 'active' : ''}" onclick="toggleFavorite(event, '${c.name}')">★</button>
             </div>
             <h3 class="card-title">${c.name}</h3>
+            ${epgHtml}
             <div class="card-meta"><span>${c.category}</span></div>
           </div>`;
         }).join('') || (q ? '<div style="padding:20px; color:var(--muted);">No matches</div>' : '');
