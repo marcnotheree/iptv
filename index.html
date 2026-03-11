@@ -136,8 +136,7 @@
       padding: 24px;
       border: 1px solid rgba(var(--accent-rgb), 0.1);
       display: flex;
-      flex-direction: column;
-      gap: 20px;
+      flex-direction: column; gap: 20px;
       height: 100%;
     }
 
@@ -178,18 +177,18 @@
 
     /* Grids */
     .section-label { font-size: 1rem; font-weight: 800; margin: 20px 0 15px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+    .channel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
     .channel-card {
       padding: 15px; border-radius: var(--radius); background: var(--panel-2); border: 1px solid var(--border);
       cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; position: relative;
     }
     .channel-card:hover { border-color: var(--accent); transform: translateY(-4px); }
     .channel-card.active { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.1); }
-    .card-title { font-weight: 800; font-size: 0.9rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 25px; }
-    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.7rem; color: var(--muted); }
+    .card-title { font-weight: 800; font-size: 0.85rem; margin: 0; color: #fff; line-height: 1.2; padding-right: 25px; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-size: 0.65rem; color: var(--muted); }
     
-    .card-icons { position: absolute; top: 12px; right: 8px; display: flex; flex-direction: column; gap: 6px; z-index: 10; }
-    .grid-btn { background: none; border: none; padding: 4px; cursor: pointer; font-size: 0.85rem; opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
+    .card-icons { position: absolute; top: 10px; right: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 10; }
+    .grid-btn { background: none; border: none; padding: 4px; cursor: pointer; font-size: 0.8rem; opacity: 0.3; transition: all 0.2s; }
     .grid-btn:hover { opacity: 1; transform: scale(1.2); }
     .grid-btn.active { opacity: 1; }
     .icon-fav.active { color: #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.5); }
@@ -390,9 +389,11 @@
       {"name": "ETNO TV", "embed": "https://canale-tv.net/channel/etno.html", "category": "Music", "country": "RO", "slug": "ETNO_TV"}
     ];
 
-    const PROXY_ENINES = [
-      'https://corsproxy.io/?',
-      'https://api.allorigins.win/get?url='
+    // Ultra-reliable Proxy Strategy with Retries and JSON Wrapping
+    const PROXY_ENGINES = [
+      'https://api.allorigins.win/get?url=', // Use JSON wrapper to bypass 403s
+      'https://api.codetabs.com/v1/proxy?url=',
+      'https://corsproxy.io/?'
     ];
 
     const state = {
@@ -435,71 +436,78 @@
       btnPins: document.getElementById('togglePins')
     };
 
+    async function fetchWithResiliency(url, retries = 2) {
+      for (const proxy of PROXY_ENGINES) {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+          try {
+            const finalUrl = proxy + encodeURIComponent(url);
+            const res = await fetch(finalUrl, { signal: AbortSignal.timeout(10000) });
+            if (res.ok) {
+              if (proxy.includes('allorigins')) {
+                const json = await res.json();
+                return json.contents;
+              }
+              return await res.text();
+            }
+            if (res.status >= 500) throw new Error("Server Error");
+          } catch (e) {
+            if (attempt === retries) console.warn(`Proxy ${proxy} failed.`);
+            else await new Promise(r => setTimeout(r, 500));
+          }
+        }
+      }
+      throw new Error("Hardened fetch failed.");
+    }
+
     async function loadEPG() {
       const targetUrl = 'https://program-tv.ro/program-tv-acum/';
-      
-      for (const proxy of PROXY_ENINES) {
-        try {
-          const res = await fetch(proxy + encodeURIComponent(targetUrl), { signal: AbortSignal.timeout(10000) });
-          if (!res.ok) continue;
+      try {
+        const html = await fetchWithResiliency(targetUrl);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const rows = doc.querySelectorAll(".striped_table_row");
+        const newEpg = {};
 
-          let html = "";
-          if (proxy.includes("allorigins")) {
-            const json = await res.json();
-            html = json.contents;
-          } else {
-            html = await res.text();
-          }
+        rows.forEach(row => {
+          const channelLink = row.querySelector("a.channelheaderlink");
+          if (!channelLink) return;
+          const slug = channelLink.getAttribute("href").split("/").pop();
+          
+          const parseCol = (selector) => {
+            const col = row.querySelector(selector);
+            if (!col) return null;
+            const timeEl = col.querySelector(".smartpe_time_3col");
+            const titleEl = col.querySelector(".smartpe_progtitle a");
+            return (timeEl && titleEl) ? { time: timeEl.textContent.trim(), title: titleEl.textContent.trim() } : null;
+          };
 
-          if (!html || html.length < 5000) continue;
+          const now = parseCol(".data_left_3col");
+          const next = parseCol(".data_middle_3col");
+          const later = parseCol(".data_right_3col");
 
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          const rows = doc.querySelectorAll(".striped_table_row");
-          const newEpg = {};
-
-          rows.forEach(row => {
-            const channelLink = row.querySelector("a.channelheaderlink");
-            if (!channelLink) return;
-            const slug = channelLink.getAttribute("href").split("/").pop();
-            
-            const parseCol = (selector) => {
-              const col = row.querySelector(selector);
-              if (!col) return null;
-              const timeEl = col.querySelector(".smartpe_time_3col");
-              const titleEl = col.querySelector(".smartpe_progtitle a");
-              return (timeEl && titleEl) ? { time: timeEl.textContent.trim(), title: titleEl.textContent.trim() } : null;
-            };
-
-            const now = parseCol(".data_left_3col");
-            const next = parseCol(".data_middle_3col");
-            const later = parseCol(".data_right_3col");
-
-            if (now) {
-              let progress = 0;
-              if (next) {
-                const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
-                const [nh, nm] = now.time.split(":").map(Number);
-                const [nxth, nxtm] = next.time.split(":").map(Number);
-                const startTime = new Date(roNow); startTime.setHours(nh, nm, 0);
-                const endTime = new Date(roNow); endTime.setHours(nxth, nxtm, 0);
-                if (endTime < startTime) endTime.setDate(endTime.getDate() + 1);
-                if (roNow < startTime) startTime.setDate(startTime.getDate() - 1);
-                progress = ((roNow - startTime) / (endTime - startTime)) * 100;
-              }
-              newEpg[slug] = { now, next, later, progress: Math.min(100, Math.max(0, progress)) };
+          if (now) {
+            let progress = 0;
+            if (next) {
+              const roNow = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Bucharest"}));
+              const [nh, nm] = now.time.split(":").map(Number);
+              const [nxth, nxtm] = next.time.split(":").map(Number);
+              const startTime = new Date(roNow); startTime.setHours(nh, nm, 0);
+              const endTime = new Date(roNow); endTime.setHours(nxth, nxtm, 0);
+              if (endTime < startTime) endTime.setDate(endTime.getDate() + 1);
+              if (roNow < startTime) startTime.setDate(startTime.getDate() - 1);
+              progress = ((roNow - startTime) / (endTime - startTime)) * 100;
             }
-          });
-
-          if (Object.keys(newEpg).length > 5) {
-            state.epgData = newEpg;
-            state.isEpgLoaded = true;
-            if (state.selected) updateEPG();
-            if (state.view === 'compare') renderCompare();
-            return;
+            newEpg[slug] = { now, next, later, progress: Math.min(100, Math.max(0, progress)) };
           }
-        } catch (e) { console.warn("EPG: Engine failed"); }
-      }
+        });
+
+        if (Object.keys(newEpg).length > 5) {
+          state.epgData = newEpg;
+          state.isEpgLoaded = true;
+          if (state.selected) updateEPG();
+          if (state.view === 'compare') renderCompare();
+        }
+      } catch (e) { console.error("Hardened EPG sync failed."); }
     }
 
     async function showFullSchedule(channel) {
@@ -518,48 +526,42 @@
       document.body.appendChild(modal);
       modal.onclick = (e) => { if(e.target === modal) modal.remove(); };
 
-      const scheduleUrl = `https://program-tv.ro/program-tv/${channel.slug}`;
-      for (const proxy of PROXY_ENINES) {
-        try {
-          const res = await fetch(proxy + encodeURIComponent(scheduleUrl));
-          const html = proxy.includes("allorigins") ? (await res.json()).contents : await res.text();
-          const doc = new DOMParser().parseFromString(html, "text/html");
-          const programs = doc.querySelectorAll(".smartpe_progentry_3col");
-          
-          if (programs.length > 0) {
-            let htmlList = "";
-            programs.forEach(p => {
-              const time = p.querySelector(".smartpe_time_3col")?.textContent.trim();
-              const title = p.querySelector(".smartpe_progtitle a")?.textContent.trim();
-              if (time && title) {
-                htmlList += `
-                  <div style="padding:15px; border-radius:12px; background:var(--panel-2); border: 1px solid var(--border); display: flex; gap: 20px; align-items: center;">
-                    <b style="color:var(--accent); min-width: 60px;">${time}</b>
-                    <span style="font-weight:700; color:#fff;">${title}</span>
-                  </div>`;
-              }
-            });
-            document.getElementById('fullSchBody').innerHTML = htmlList;
-            return;
+      try {
+        const html = await fetchWithResiliency(`https://www.program-tv.ro/program-tv/${channel.slug}`);
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const programs = doc.querySelectorAll(".smartpe_progentry_3col");
+        
+        let htmlList = "";
+        programs.forEach(p => {
+          const time = p.querySelector(".smartpe_time_3col")?.textContent.trim();
+          const title = p.querySelector(".smartpe_progtitle a")?.textContent.trim();
+          if (time && title) {
+            htmlList += `
+              <div style="padding:15px; border-radius:12px; background:var(--panel-2); border: 1px solid var(--border); display: flex; gap: 20px; align-items: center;">
+                <b style="color:var(--accent); min-width: 60px;">${time}</b>
+                <span style="font-weight:700; color:#fff;">${title}</span>
+              </div>`;
           }
-        } catch (e) { }
+        });
+        document.getElementById('fullSchBody').innerHTML = htmlList || '<div style="padding:40px; text-align:center;">No data found.</div>';
+      } catch (e) {
+        document.getElementById('fullSchBody').innerHTML = '<div style="padding:40px; text-align:center; color:var(--danger);">Network Error. Please try again.</div>';
       }
-      document.getElementById('fullSchBody').innerHTML = '<div style="padding:40px; text-align:center; color:var(--danger);">Failed to load daily schedule. Try again later.</div>';
     }
 
-    function toggleFavorite(e, name) {
+    window.toggleFavorite = (e, name) => {
       e.stopPropagation();
       state.favs.has(name) ? state.favs.delete(name) : state.favs.add(name);
       localStorage.setItem('iptv-favs', JSON.stringify([...state.favs]));
       render();
-    }
+    };
 
-    function togglePin(e, name) {
+    window.togglePin = (e, name) => {
       e.stopPropagation();
       state.pins.has(name) ? state.pins.delete(name) : state.pins.add(name);
       localStorage.setItem('iptv-pins', JSON.stringify([...state.pins]));
       render();
-    }
+    };
 
     function play(channel) {
       state.selected = channel;
@@ -605,7 +607,7 @@
       }
       els.grids.compare.innerHTML = targets.map(c => {
         const data = state.epgData[c.slug];
-        let content = `<div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="padding:20px; color:var(--muted);">EPG loading...</div>`;
+        let content = `<div class="compare-header"><span class="compare-name">${c.name}</span></div><div style="padding:20px; color:var(--muted);">EPG sync...</div>`;
         if (data) {
           content = `<div class="compare-header"><span class="compare-name">${c.name}</span><div class="compare-live-dot"></div></div><div class="epg-current"><span class="filter-label" style="font-size:0.6rem;">Now Playing (${data.now.time})</span><span class="epg-value" style="font-size: 1rem; color: var(--accent);">${data.now.title}</span><div class="progress-bar"><div class="progress-fill" style="width: ${data.progress}%"></div></div></div><div style="margin-top:10px; font-size:0.8rem; color:var(--muted);">Next: ${data.next ? data.next.title : '---'}</div>`;
         }
@@ -676,16 +678,11 @@
       els.menuBtn.onclick = openSidebar;
       els.overlay.onclick = closeSidebar;
       document.getElementById('refreshCompare').onclick = () => { loadEPG(); };
-      
-      document.getElementById('btnSchedule').onclick = () => {
-        if (state.selected) showFullSchedule(state.selected);
-      };
-
+      document.getElementById('btnSchedule').onclick = () => { if (state.selected) showFullSchedule(state.selected); };
       document.getElementById('btnShare').onclick = () => {
         const url = window.location.origin + window.location.pathname + "?ch=" + encodeURIComponent(state.selected.name);
         navigator.clipboard.writeText(url).then(() => alert("Link copied!"));
       };
-
       loadEPG();
       setInterval(loadEPG, 60000); 
     }
