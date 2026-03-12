@@ -328,7 +328,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
           <div>
             <h2 style="font-size: 2.2rem; margin: 0; font-weight: 900;">EPG Comparison</h2>
-            <p style="color: var(--muted); margin: 5px 0 0 0;">Monitoring Pinned and Favorite channels in real-time.</p>
+            <p style="color: var(--muted); margin: 5px 0 0 0;">Monitoring your favorite channels in real-time.</p>
           </div>
           <button id="refreshCompare" class="nav-btn" style="width: auto;">🔄 Refresh Data</button>
         </div>
@@ -364,6 +364,7 @@
       {"name": "Digi Sport 3", "embed": "https://canale-tv.net/channel/dgsp3.html", "category": "Sport", "slug": "digi-sport-3"},
       {"name": "Digi Sport 4", "embed": "https://canale-tv.net/channel/dgsp4.html", "category": "Sport", "slug": "digi-sport-4"},
       {"name": "PRO Arena", "embed": "https://canale-tv.net/channel/proarena.html", "category": "Sport", "slug": "pro-arena"},
+      {"name": "PRO TV International", "embed": "https://canale-tv.net/channel/protv-intl.html", "category": "General", "slug": "pro-tv-international"},
       {"name": "HBO", "embed": "https://canale-tv.net/channel/hb.html", "category": "Filme", "slug": "hbo"},
       {"name": "HBO 2", "embed": "https://canale-tv.net/channel/hb2.html", "category": "Filme", "slug": "hbo-2"},
       {"name": "HBO 3", "embed": "https://canale-tv.net/channel/hb3.html", "category": "Filme", "slug": "hbo-3"},
@@ -434,18 +435,69 @@
 
     const nameToSlug = (name) => {
       const map = {
-        'protv': 'pro-tv', 'antena1': 'antena-1', 'kanald': 'kanal-d', 'kanald2': 'kanal-d2',
+        'protvinternational': 'pro-tv-international', 'protv': 'pro-tv', 
+        'antena1': 'antena-1', 'kanald2': 'kanal-d2', 'kanald': 'kanal-d', 
         'primatv': 'prima-tv', 'nationaltv': 'national-tv', 'tvr1': 'tvr-1', 'tvr2': 'tvr-2',
         'procinema': 'pro-cinema', 'acasatv': 'acasa-tv', 'antenastars': 'antena-stars',
         'antena3': 'antena-3-cnn', 'romaniatv': 'romania-tv', 'realitateatv': 'realitatea-plus',
-        'b1tv': 'b1-tv', 'digi24': 'digi-24', 'digisport1': 'digi-sport-1', 'digisport2': 'digi-sport-2',
-        'digisport3': 'digi-sport-3', 'digisport4': 'digi-sport-4', 'proarena': 'pro-arena',
-        'hbo': 'hbo', 'hbo2': 'hbo-2', 'hbo3': 'hbo-3', 'filmnow': 'film-now', 'warner': 'warner-tv'
+        'b1tv': 'b1-tv', 'digi24': 'digi-24', 
+        'digisport4': 'digi-sport-4', 'digisport3': 'digi-sport-3', 'digisport2': 'digi-sport-2', 'digisport1': 'digi-sport-1',
+        'proarena': 'pro-arena',
+        'hbo3': 'hbo-3', 'hbo2': 'hbo-2', 'hbo': 'hbo', 
+        'filmnow': 'film-now', 'warner': 'warner-tv'
       };
       const simple = name.toLowerCase().replace(/[^a-z0-9]/g, '');
       for (let k in map) { if (simple.includes(k)) return map[k]; }
       return name.toLowerCase().replace(/ș/g, 's').replace(/ț/g, 't').replace(/ă|â/g, 'a').replace(/î/g, 'i')
         .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    };
+
+    const TVPLUS_MAPPING = {
+      "pro-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262420/ro-pro-tv/",
+      "pro-tv-international": "https://tvpluspanel.tv/channels/823/-eu-romania/262382/ro-protv-international/",
+      "antena-1": "https://tvpluspanel.tv/channels/823/-eu-romania/262293/ro-antena-1/",
+      "tvr-1": "https://tvpluspanel.tv/channels/823/-eu-romania/262407/ro-tvr-1/",
+      "tvr-2": "https://tvpluspanel.tv/channels/823/-eu-romania/262408/ro-tvr-2/",
+      "kanal-d": "https://tvpluspanel.tv/channels/823/-eu-romania/262303/ro-kanal-d/",
+      "prima-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262378/ro-prima-tv/",
+      "national-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262374/ro-national-tv/",
+      "tvr-3": "https://tvpluspanel.tv/channels/823/-eu-romania/262426/ro-tvr-3/",
+      "acasa-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262470/ro-acasa/",
+      "antena-stars": "https://tvpluspanel.tv/channels/823/-eu-romania/262302/ro-antena-stars/",
+      "antena-3-cnn": "https://tvpluspanel.tv/channels/823/-eu-romania/262299/ro-antena-3/",
+      "romania-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262386/ro-romania-tv/",
+      "realitatea-plus": "https://tvpluspanel.tv/channels/823/-eu-romania/262482/ro-realitatea-plus/",
+      "b1-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262311/ro-b1-tv/",
+      "digi-24": "https://tvpluspanel.tv/channels/823/-eu-romania/262504/ro-digi-24/",
+      "digi-sport-1": "https://tvpluspanel.tv/channels/823/-eu-romania/262327/ro-digi-sport-1/",
+      "digi-sport-2": "https://tvpluspanel.tv/channels/823/-eu-romania/262328/ro-digi-sport-2/",
+      "digi-sport-3": "https://tvpluspanel.tv/channels/823/-eu-romania/262330/ro-digi-sport-3/",
+      "digi-sport-4": "https://tvpluspanel.tv/channels/823/-eu-romania/262332/ro-digi-sport-4/",
+      "pro-arena": "https://tvpluspanel.tv/channels/823/-eu-romania/262476/ro-pro-x/",
+      "hbo": "https://tvpluspanel.tv/channels/823/-eu-romania/262285/ro-hbo/",
+      "hbo-2": "https://tvpluspanel.tv/channels/823/-eu-romania/262357/ro-hbo-2-uhd/",
+      "hbo-3": "https://tvpluspanel.tv/channels/823/-eu-romania/262359/ro-hbo-3/",
+      "diva": "https://tvpluspanel.tv/channels/823/-eu-romania/262343/ro-diva-universal/",
+      "filmcafe": "https://tvpluspanel.tv/channels/823/-eu-romania/262450/ro-film-cafe/",
+      "film-now": "https://tvpluspanel.tv/channels/823/-eu-romania/262448/ro-film-now/",
+      "amc": "https://tvpluspanel.tv/channels/823/-eu-romania/262310/ro-amc/",
+      "axn": "https://tvpluspanel.tv/channels/823/-eu-romania/262304/ro-axn/",
+      "cinemax": "https://tvpluspanel.tv/channels/823/-eu-romania/262316/ro-cinemax-1-fhd/",
+      "cinemax-2": "https://tvpluspanel.tv/channels/823/-eu-romania/262439/ro-cinemax-2/",
+      "warner-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262403/ro-tnt/",
+      "minimax": "https://tvpluspanel.tv/channels/823/-eu-romania/262364/ro-minimax/",
+      "cartoon-network": "https://tvpluspanel.tv/channels/823/-eu-romania/262315/ro-cartoon-network/",
+      "disney-channel": "https://tvpluspanel.tv/channels/823/-eu-romania/262341/ro-disney-channel/",
+      "nickelodeon": "https://tvpluspanel.tv/channels/823/-eu-romania/262375/ro-nickelodeon/",
+      "discovery-channel": "https://tvpluspanel.tv/channels/823/-eu-romania/262336/ro-discovery-channel/",
+      "history": "https://tvpluspanel.tv/channels/823/-eu-romania/262360/ro-history-channel/",
+      "national-geographic": "https://tvpluspanel.tv/channels/823/-eu-romania/262370/ro-nat-geographic/",
+      "nat-geo-wild": "https://tvpluspanel.tv/channels/823/-eu-romania/262372/ro-nat-geo-wild/",
+      "zu-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262416/ro-zu-tv/",
+      "kiss-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262361/ro-kiss-tv/",
+      "utv": "https://tvpluspanel.tv/channels/823/-eu-romania/262410/ro-utv/",
+      "taraf-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262388/ro-taraf-tv/",
+      "etno-tv": "https://tvpluspanel.tv/channels/823/-eu-romania/262349/ro-etno/"
     };
 
     const getRomaniaTime = () => {
@@ -521,7 +573,7 @@
           seenSlugs.add(rawSlug);
 
           const name = link.textContent.trim() || rawSlug;
-          const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '').includes('protv') ? 'pro-tv' : rawSlug; 
+          const slug = nameToSlug(name); 
           
           const staticMatch = STATIC_CHANNELS.find(c => c.slug === rawSlug || c.slug === slug || c.name.toLowerCase() === name.toLowerCase());
           
@@ -633,14 +685,123 @@
       fetchAllMissingEPG();
     }
 
+    async function fetchEPGFromFastTV(channelName) {
+      const PROXIES = ['https://corsproxy.io/?', 'https://api.codetabs.com/v1/proxy?quest='];
+      const target = `https://epg.fast-tv.net/fast/d1d1b64180cd/player_epg=${encodeURIComponent(channelName)}`;
+      
+      for (const proxy of PROXIES) {
+        try {
+          const res = await fetch(proxy + encodeURIComponent(target));
+          const text = await res.text();
+          if (text && text.includes('Acum:')) {
+            const doc = new DOMParser().parseFromString(text, "text/html");
+            const bodyText = doc.body.innerText;
+            
+            const nowMatch = bodyText.match(/Acum:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+            const nextMatch = bodyText.match(/Urmează:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
+            
+            if (nowMatch) {
+              const nowTitle = nowMatch[1].trim();
+              const nowTime = nowMatch[2].trim();
+              const endTime = nowMatch[3].trim();
+              const progress = calculateProgress(nowTime, endTime);
+
+              return {
+                now: { title: nowTitle, time: nowTime },
+                next: nextMatch ? { title: nextMatch[1].trim(), time: nextMatch[2].trim() } : null,
+                progress: progress
+              };
+            }
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function fetchEPGFromTVPlus(channelSlug) {
+      const target = TVPLUS_MAPPING[channelSlug];
+      if (!target) return null;
+
+      const PROXIES = ['https://corsproxy.io/?', 'https://api.codetabs.com/v1/proxy?quest='];
+      for (const proxy of PROXIES) {
+        try {
+          const res = await fetch(proxy + encodeURIComponent(target));
+          const text = await res.text();
+          if (text && text.includes('application/ld+json')) {
+            const doc = new DOMParser().parseFromString(text, "text/html");
+            const script = Array.from(doc.querySelectorAll('script[type="application/ld+json"]')).find(s => s.textContent.includes('Explore EPG'));
+            if (script) {
+              const data = JSON.parse(script.textContent);
+              const events = data.itemListElement || [];
+              if (events.length > 0) {
+                const roNow = getRomaniaTime();
+                const nowEvent = events.find(e => {
+                  const start = new Date(e.startDate.replace(' ', 'T'));
+                  const end = new Date(e.endDate.replace(' ', 'T'));
+                  return roNow >= start && roNow <= end;
+                });
+                const nextEvent = nowEvent ? events[events.indexOf(nowEvent) + 1] : events[0];
+
+                if (nowEvent) {
+                  const start = new Date(nowEvent.startDate.replace(' ', 'T'));
+                  const end = new Date(nowEvent.endDate.replace(' ', 'T'));
+                  const progress = Math.min(100, Math.max(0, ((roNow - start) / (end - start)) * 100));
+                  
+                  return {
+                    now: { title: nowEvent.name, time: nowEvent.startDate.split(' ')[1].substring(0, 5) },
+                    next: nextEvent ? { title: nextEvent.name, time: nextEvent.startDate.split(' ')[1].substring(0, 5) } : null,
+                    progress: progress
+                  };
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      }
+      return null;
+    }
+
+    async function updateEPG() {
+      if (!state.selected) return;
+      els.epgBox.classList.remove('hidden');
+      
+      const s = state.selected;
+      let data = state.epgData[s.epgSlug] || state.epgData[s.slug] || state.epgData[nameToSlug(s.name)];
+      
+      if (!data) {
+        els.epgNow.textContent = "Fetching live info...";
+        data = await fetchEPGFromTVPlus(s.slug) || await fetchEPGFromTVPlus(s.epgSlug);
+        if (!data) data = await fetchEPGFromFastTV(s.name);
+        if (data) state.epgData[s.slug] = data;
+      }
+
+      if (data) {
+        els.epgNow.textContent = data.now.title;
+        els.epgProgress.style.width = data.progress + '%';
+        let upHtml = "";
+        if (data.next) upHtml += `<div class="upcoming-item"><span class="upcoming-time">${data.next.time}</span><span class="upcoming-title">${data.next.title}</span></div>`;
+        if (data.later) upHtml += `<div class="upcoming-item"><span class="upcoming-time">${data.later.time}</span><span class="upcoming-title">${data.later.title}</span></div>`;
+        els.epgUpcoming.innerHTML = upHtml || '<div style="color:var(--muted);">No upcoming data</div>';
+      } else {
+        els.epgNow.textContent = "Schedule Unavailable";
+        els.epgUpcoming.innerHTML = "";
+      }
+    }
+
     async function fetchAllMissingEPG() {
       console.log("Background EPG sync started...");
       for (const channel of state.all) {
-        const hasData = state.epgData[channel.epgSlug] || state.epgData[channel.slug] || state.epgData[nameToSlug(channel.name)];
+        const slug = channel.slug;
+        const epgSlug = channel.epgSlug;
+        const nameSlug = nameToSlug(channel.name);
+        const hasData = state.epgData[epgSlug] || state.epgData[slug] || state.epgData[nameSlug];
+        
         if (!hasData) {
-          const data = await fetchEPGFromFastTV(channel.name);
+          let data = await fetchEPGFromTVPlus(slug) || await fetchEPGFromTVPlus(epgSlug);
+          if (!data) data = await fetchEPGFromFastTV(channel.name);
+          
           if (data) {
-            state.epgData[channel.slug] = data;
+            state.epgData[slug] = data;
             render();
           }
           await new Promise(r => setTimeout(r, 500));
@@ -722,71 +883,10 @@
       switchView('home');
     }
 
-    async function fetchEPGFromFastTV(channelName) {
-      const PROXIES = ['https://corsproxy.io/?', 'https://api.codetabs.com/v1/proxy?quest='];
-      const target = `https://epg.fast-tv.net/fast/d1d1b64180cd/player_epg=${encodeURIComponent(channelName)}`;
-      
-      for (const proxy of PROXIES) {
-        try {
-          const res = await fetch(proxy + encodeURIComponent(target));
-          const text = await res.text();
-          if (text && text.includes('Acum:')) {
-            const doc = new DOMParser().parseFromString(text, "text/html");
-            const bodyText = doc.body.innerText;
-            
-            const nowMatch = bodyText.match(/Acum:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
-            const nextMatch = bodyText.match(/Urmează:\s*(.*?)\n\s*(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/);
-            
-            if (nowMatch) {
-              const nowTitle = nowMatch[1].trim();
-              const nowTime = nowMatch[2].trim();
-              const endTime = nowMatch[3].trim();
-              const progress = calculateProgress(nowTime, endTime);
-
-              return {
-                now: { title: nowTitle, time: nowTime },
-                next: nextMatch ? { title: nextMatch[1].trim(), time: nextMatch[2].trim() } : null,
-                progress: progress
-              };
-            }
-          }
-        } catch (e) {}
-      }
-      return null;
-    }
-
-    async function updateEPG() {
-      if (!state.selected) return;
-      els.epgBox.classList.remove('hidden');
-      
-      const s = state.selected;
-      let data = state.epgData[s.epgSlug] || state.epgData[s.slug] || state.epgData[nameToSlug(s.name)];
-      
-      if (!data) {
-        els.epgNow.textContent = "Fetching live info...";
-        data = await fetchEPGFromFastTV(s.name);
-        if (data) {
-          state.epgData[s.slug] = data;
-        }
-      }
-
-      if (data) {
-        els.epgNow.textContent = data.now.title;
-        els.epgProgress.style.width = data.progress + '%';
-        let upHtml = "";
-        if (data.next) upHtml += `<div class="upcoming-item"><span class="upcoming-time">${data.next.time}</span><span class="upcoming-title">${data.next.title}</span></div>`;
-        if (data.later) upHtml += `<div class="upcoming-item"><span class="upcoming-time">${data.later.time}</span><span class="upcoming-title">${data.later.title}</span></div>`;
-        els.epgUpcoming.innerHTML = upHtml || '<div style="color:var(--muted);">No upcoming data</div>';
-      } else {
-        els.epgNow.textContent = "Schedule Unavailable";
-        els.epgUpcoming.innerHTML = "";
-      }
-    }
-
     function renderCompare() {
-      const targets = state.all.filter(c => state.pins.has(c.name) || state.favs.has(c.name));
+      const targets = state.all.filter(c => state.favs.has(c.name));
       if (!targets.length) {
-        els.grids.compare.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 100px 20px; color: var(--muted); border: 2px dashed var(--border); border-radius: 20px;"><h3>No monitored channels</h3><p>Pin or Favorite channels from the Home Explorer to monitor them here.</p></div>';
+        els.grids.compare.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 100px 20px; color: var(--muted); border: 2px dashed var(--border); border-radius: 20px;"><h3>No favorite channels</h3><p>Favorite channels from the Home Explorer to monitor them here.</p></div>';
         return;
       }
       els.grids.compare.innerHTML = targets.map(c => {
@@ -809,15 +909,7 @@
         return ms && mc && mf && mp;
       });
 
-      filtered.sort((a, b) => {
-        const pinA = state.pins.has(a.name) ? 1 : 0;
-        const pinB = state.pins.has(b.name) ? 1 : 0;
-        if (pinA !== pinB) return pinB - pinA;
-        const hasA = !!(state.epgData[a.epgSlug] || state.epgData[a.slug] || state.epgData[nameToSlug(a.name)]);
-        const hasB = !!(state.epgData[b.epgSlug] || state.epgData[b.slug] || state.epgData[nameToSlug(b.name)]);
-        if (hasA !== hasB) return hasB - hasA;
-        return a.name.localeCompare(b.name);
-      });
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
 
       const pinned = filtered.filter(c => state.pins.has(c.name));
       const favs = filtered.filter(c => state.favs.has(c.name) && !state.pins.has(c.name));
