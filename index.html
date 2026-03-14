@@ -352,6 +352,9 @@
           </div>
         </div>
       </div>
+      <div style="padding: 20px; border-top: 1px solid var(--border);">
+        <button id="logoutBtn" class="nav-btn" style="color: var(--danger); border-color: rgba(255,92,124,0.2); background: rgba(255,92,124,0.05);">🔓 Logout Hub</button>
+      </div>
     </aside>
 
     <main class="main" id="mainScroll">
@@ -474,10 +477,16 @@
       }
     }
 
+    function handleLogout() {
+      localStorage.removeItem(SESSION_KEY);
+      location.reload();
+    }
+
     // Event Listeners for Login
     window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('loginBtn').onclick = handleLogin;
       document.getElementById('passwordInput').onkeypress = (e) => { if(e.key === 'Enter') handleLogin(); };
+      document.getElementById('logoutBtn').onclick = handleLogout;
       checkAuth();
     });
 
