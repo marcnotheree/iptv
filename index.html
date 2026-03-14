@@ -243,9 +243,87 @@
       .channel-grid { grid-template-columns: repeat(auto-fill, minmax(105px, 1fr)); }
       .compare-grid { grid-template-columns: 1fr; }
     }
+    /* Password Overlay */
+    #login-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      transition: opacity 0.5s ease;
+    }
+
+    .login-box {
+      background: var(--panel);
+      padding: 40px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .login-box h2 {
+      margin-top: 0;
+      margin-bottom: 24px;
+      background: linear-gradient(to right, #fff, var(--muted));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .login-box input {
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+      letter-spacing: 4px;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .login-box button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .login-error {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: 15px;
+      min-height: 20px;
+      font-weight: 600;
+    }
+
+    #login-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
+  <div id="login-overlay">
+    <div class="login-box">
+      <h2>IPTV Access</h2>
+      <input type="password" id="passwordInput" placeholder="••••" />
+      <button id="loginBtn">Unlock Hub</button>
+      <div id="loginError" class="login-error"></div>
+    </div>
+  </div>
   <div class="app">
     <div id="drawerOverlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:2500; opacity:0; pointer-events:none; transition:0.3s; backdrop-filter:blur(4px);"></div>
     
@@ -340,6 +418,54 @@
   <button class="menu-btn" id="menuBtn">☰</button>
 
   <script>
+    // --- Security Layer ---
+    const PASS_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4'; // SHA-256 for "1234"
+    const SESSION_KEY = 'iptv_auth_session';
+    const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+
+    async function hash(str) {
+      const msgUint8 = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function checkAuth() {
+      const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+      if (session && (Date.now() - session.timestamp < TWO_WEEKS_MS)) {
+        document.getElementById('login-overlay').classList.add('hidden');
+        return true;
+      }
+      return false;
+    }
+
+    async function handleLogin() {
+      const input = document.getElementById('passwordInput');
+      const error = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+      
+      error.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      const hashedInput = await hash(input.value);
+      if (hashedInput === PASS_HASH) {
+        localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+        document.getElementById('login-overlay').classList.add('hidden');
+      } else {
+        error.textContent = 'Invalid Password';
+        input.value = '';
+        btn.disabled = false;
+        btn.textContent = 'Unlock Hub';
+      }
+    }
+
+    // Event Listeners for Login
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('loginBtn').onclick = handleLogin;
+      document.getElementById('passwordInput').onkeypress = (e) => { if(e.key === 'Enter') handleLogin(); };
+      checkAuth();
+    });
+
     const STATIC_CHANNELS = [
       {"name": "PRO TV", "embed": "https://canale-tv.com/channel/pr0tv.html", "category": "General", "slug": "pro-tv"},
       {"name": "Antena 1", "embed": "https://canale-tv.com/channel/a1.html", "category": "General", "slug": "antena-1"},
