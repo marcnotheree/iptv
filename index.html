@@ -424,16 +424,24 @@
     const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
 
     async function hash(str) {
+      if (!window.crypto || !window.crypto.subtle) {
+        throw new Error("Secure Context Required: Auth only works on HTTPS or localhost.");
+      }
       const msgUint8 = new TextEncoder().encode(str);
       const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     async function checkAuth() {
-      const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-      if (session && (Date.now() - session.timestamp < TWO_WEEKS_MS)) {
-        document.getElementById('login-overlay').classList.add('hidden');
-        return true;
+      try {
+        const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (session && (Date.now() - session.timestamp < TWO_WEEKS_MS)) {
+          document.getElementById('login-overlay').classList.add('hidden');
+          return true;
+        }
+      } catch (e) {
+        console.warn("Auth check failed:", e);
+        localStorage.removeItem(SESSION_KEY);
       }
       return false;
     }
@@ -447,13 +455,20 @@
       btn.disabled = true;
       btn.textContent = 'Verifying...';
 
-      const hashedInput = await hash(input.value);
-      if (hashedInput === PASS_HASH) {
-        localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
-        document.getElementById('login-overlay').classList.add('hidden');
-      } else {
-        error.textContent = 'Invalid Password';
-        input.value = '';
+      try {
+        const hashedInput = await hash(input.value);
+        if (hashedInput === PASS_HASH) {
+          localStorage.setItem(SESSION_KEY, JSON.stringify({ timestamp: Date.now() }));
+          document.getElementById('login-overlay').classList.add('hidden');
+        } else {
+          error.textContent = 'Invalid Password';
+          input.value = '';
+          btn.disabled = false;
+          btn.textContent = 'Unlock Hub';
+        }
+      } catch (e) {
+        console.error(e);
+        error.textContent = e.message.includes('Secure') ? e.message : 'Auth Error. Check console.';
         btn.disabled = false;
         btn.textContent = 'Unlock Hub';
       }
